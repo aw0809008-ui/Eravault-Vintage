@@ -19,82 +19,76 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [col, setCol] = useState(false);
 
   async function logout() { await signOut(); router.push("/login"); }
 
   return (
-    <div className="min-h-screen flex bg-[--bg]">
-      {open && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setOpen(false)} />}
+    <div className="min-h-screen flex bg-[--c-bg]">
+      {open && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setOpen(false)} />}
 
-      {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-[--bg-sub] border-r border-[--border] transition-all duration-200",
-        collapsed ? "lg:w-16" : "lg:w-56",
-        open ? "w-56 translate-x-0 animate-slide-in" : "-translate-x-full lg:translate-x-0"
+        "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-[--c-sidebar] transition-all duration-200",
+        col ? "lg:w-[60px]" : "lg:w-[220px]",
+        open ? "w-[220px] translate-x-0 animate-slide-in" : "-translate-x-full lg:translate-x-0"
       )}>
-        {/* Logo */}
-        <div className="flex items-center justify-between px-3 h-14 border-b border-[--border]">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[--bg-accent] text-[--bg] flex items-center justify-center font-bold text-sm shrink-0">E</div>
-            {!collapsed && <span className="font-semibold text-sm text-[--text]">Eravault</span>}
+        <div className="flex items-center justify-between px-3 h-[52px] border-b border-white/[0.08]">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-[--c-sidebar-active] text-white flex items-center justify-center font-bold text-xs shrink-0">E</div>
+            {!col && <span className="font-semibold text-[13px] text-white/90">Eravault</span>}
           </Link>
-          <button className="lg:hidden text-[--text-dim] cursor-pointer" onClick={() => setOpen(false)}><X className="w-4 h-4" /></button>
+          <button className="lg:hidden text-white/40 cursor-pointer" onClick={() => setOpen(false)}><X className="w-4 h-4" /></button>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 py-3 px-2 space-y-0.5">
+        <nav className="flex-1 py-2 px-2 space-y-0.5">
           {nav.map(n => {
-            const active = path === n.href || (n.href !== "/dashboard" && path.startsWith(n.href));
+            const a = path === n.href || (n.href !== "/dashboard" && path.startsWith(n.href));
             return (
               <Link key={n.href} href={n.href} onClick={() => setOpen(false)}
-                className={cn("flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-colors",
-                  active ? "bg-[--bg-accent] text-[--bg]" : "text-[--text-sub] hover:text-[--text] hover:bg-[--bg-hover]"
+                className={cn("flex items-center gap-2 px-2 py-[7px] rounded-md text-[13px] font-medium transition-colors",
+                  a ? "bg-[--c-sidebar-active] text-white" : "text-[--c-sidebar-text] hover:bg-[--c-sidebar-hover] hover:text-white"
                 )}>
-                <n.icon className="w-4 h-4 shrink-0" />{!collapsed && <span>{n.label}</span>}
+                <n.icon className="w-[16px] h-[16px] shrink-0" />{!col && n.label}
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom controls */}
-        <div className="border-t border-[--border] p-2 space-y-0.5">
-          <button onClick={toggleTheme} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium w-full text-[--text-sub] hover:text-[--text] hover:bg-[--bg-hover] transition-colors cursor-pointer">
+        <div className="border-t border-white/[0.08] px-2 py-2 space-y-0.5">
+          <button onClick={toggleTheme} className="flex items-center gap-2 px-2 py-[7px] rounded-md text-[13px] font-medium w-full text-[--c-sidebar-text] hover:bg-[--c-sidebar-hover] hover:text-white transition-colors cursor-pointer">
             {theme === "dark" ? <Sun className="w-4 h-4 shrink-0" /> : <Moon className="w-4 h-4 shrink-0" />}
-            {!collapsed && <span>{theme === "dark" ? "Light" : "Dark"}</span>}
+            {!col && (theme === "dark" ? "Light mode" : "Dark mode")}
           </button>
-          <button onClick={logout} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium w-full text-[--text-sub] hover:text-red-500 hover:bg-[--bg-hover] transition-colors cursor-pointer">
-            <LogOut className="w-4 h-4 shrink-0" />{!collapsed && <span>Sign out</span>}
+          <button onClick={logout} className="flex items-center gap-2 px-2 py-[7px] rounded-md text-[13px] font-medium w-full text-[--c-sidebar-text-2] hover:text-red-400 hover:bg-[--c-sidebar-hover] transition-colors cursor-pointer">
+            <LogOut className="w-4 h-4 shrink-0" />{!col && "Sign out"}
           </button>
         </div>
 
-        {/* Collapse */}
-        <button className="hidden lg:flex items-center justify-center py-2.5 border-t border-[--border] text-[--text-dim] hover:text-[--text] cursor-pointer transition-colors" onClick={() => setCollapsed(!collapsed)}>
-          <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
+        <button className="hidden lg:flex items-center justify-center py-2 border-t border-white/[0.08] text-[--c-sidebar-text-2] hover:text-white cursor-pointer transition-colors" onClick={() => setCol(!col)}>
+          <ChevronLeft className={cn("w-4 h-4 transition-transform", col && "rotate-180")} />
         </button>
 
-        {/* User */}
-        <div className="border-t border-[--border] p-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[--bg-hover] border border-[--border] flex items-center justify-center shrink-0 text-[11px] font-semibold text-[--text-sub]">
-              {(user?.name || "?")[0].toUpperCase()}
+        {!col && (
+          <div className="border-t border-white/[0.08] px-3 py-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-[--c-sidebar-hover] border border-white/10 flex items-center justify-center text-[11px] font-semibold text-white/60 shrink-0">
+                {(user?.name || "?")[0].toUpperCase()}
+              </div>
+              <div className="min-w-0"><p className="text-[12px] font-medium text-white/80 truncate">{user?.name}</p><p className="text-[11px] text-[--c-sidebar-text-2] truncate">{user?.email}</p></div>
             </div>
-            {!collapsed && <div className="min-w-0"><p className="text-xs font-medium text-[--text] truncate">{user?.name}</p><p className="text-[11px] text-[--text-dim] truncate">{user?.email}</p></div>}
           </div>
-        </div>
+        )}
       </aside>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden bg-[--bg-sub] border-b border-[--border] px-4 h-12 flex items-center justify-between sticky top-0 z-30">
-          <button onClick={() => setOpen(true)} className="text-[--text-sub] cursor-pointer"><Menu className="w-5 h-5" /></button>
-          <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-[--bg-accent] text-[--bg] flex items-center justify-center font-bold text-[10px]">E</div><span className="font-semibold text-sm text-[--text]">Eravault</span></div>
+        <header className="lg:hidden bg-[--c-surface] border-b border-[--c-border] px-4 h-[48px] flex items-center justify-between sticky top-0 z-30">
+          <button onClick={() => setOpen(true)} className="text-[--c-text-2] cursor-pointer"><Menu className="w-5 h-5" /></button>
+          <span className="font-semibold text-[13px] text-[--c-text]">Eravault</span>
           <div className="flex items-center gap-1">
-            <button onClick={toggleTheme} className="p-1.5 text-[--text-sub] cursor-pointer">{theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}</button>
-            <button onClick={logout} className="p-1.5 text-[--text-sub] hover:text-red-500 cursor-pointer"><LogOut className="w-4 h-4" /></button>
+            <button onClick={toggleTheme} className="p-1.5 text-[--c-text-3] cursor-pointer">{theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}</button>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-5 lg:p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );
