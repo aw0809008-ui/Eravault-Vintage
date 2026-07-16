@@ -63,29 +63,26 @@
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--color-line);border-radius:10px; }
 
-/* Select dropdown styling */
-select option {
-  background-color: var(--color-surface);
-  color: var(--color-on-surface);
-  padding: 8px 12px;
-}
+/* Calendar dark mode */
+.dark input[type="date"] { color-scheme: dark; }
+.dark input[type="time"] { color-scheme: dark; }
 
-/* Date picker styling */
-::-webkit-datetime-edit { color: var(--color-on-surface); }
 ::-webkit-datetime-edit-fields-wrapper { padding: 0; }
-::-webkit-datetime-edit-text { color: var(--color-on-surface-3); padding: 0 2px; }
-::-webkit-datetime-edit-month-field,
-::-webkit-datetime-edit-day-field,
-::-webkit-datetime-edit-year-field { color: var(--color-on-surface); }
+::-webkit-datetime-edit-text { color: var(--color-on-surface-3); padding: 0 1px; }
 ::-webkit-datetime-edit-month-field:focus,
 ::-webkit-datetime-edit-day-field:focus,
 ::-webkit-datetime-edit-year-field:focus {
   background: var(--color-primary-soft);
   color: var(--color-primary);
-  border-radius: 4px;
+  border-radius: 3px;
   outline: none;
 }
-
-/* Color scheme for calendar popup */
-.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-.dark select { color-scheme: dark; }
+::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+}
+::-webkit-calendar-picker-indicator:hover {
+  background: var(--color-surface-2);
+}
+.dark ::-webkit-calendar-picker-indicator { filter: invert(1) brightness(0.8); }
