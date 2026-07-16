@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Play, Package, ExternalLink, Calendar, Tag, Ruler, Star, Share2 } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play, Package, ExternalLink, Calendar, Tag, Ruler, Star, Share2 , Globe } from "lucide-react";
 import { StatusBadge, ConditionBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ShareMenu } from "@/components/inventory/share-menu";
 import type { InventoryItem } from "@/lib/supabase";
+import { toggleShowOnWebsite } from "@/lib/supabase";
 
 interface Props {
   item: InventoryItem;
@@ -18,6 +19,13 @@ export function ItemDetail({ item, onClose }: Props) {
     ...(item.images ? item.images.split(',').filter(Boolean).map(u => ({ url: u, type: 'image' as const })) : []),
   ];
   const [current, setCurrent] = useState(0);
+  const [websiteToggle, setWebsiteToggle] = useState(item.showOnWebsite ?? false);
+  const [toggling, setToggling] = useState(false);
+  async function handleWebsiteToggle() {
+    try { setToggling(true); const nv = !websiteToggle; await toggleShowOnWebsite(item.id, nv); setWebsiteToggle(nv); }
+    catch(e) { console.error('Toggle failed:', e); }
+    finally { setToggling(false); }
+  }
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const pcs = parseInt(item.pieces) || 1;
@@ -102,6 +110,20 @@ export function ItemDetail({ item, onClose }: Props) {
         </div>
       )}
 
+      {/* Website Toggle */}
+      <div className="mx-5 mt-4 p-3.5 rounded-xl bg-surface-2 border border-line flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Globe className="w-4 h-4 text-primary" />
+          <div>
+            <span className="text-[13px] font-semibold text-on-surface">List on Website</span>
+            <span className="text-[11px] text-on-surface-3 block">{websiteToggle ? 'Visible on store' : 'Hidden from store'}</span>
+          </div>
+        </div>
+        <button onClick={handleWebsiteToggle} disabled={toggling}
+          className={`relative w-12 h-7 rounded-full transition-all duration-300 ${websiteToggle ? 'bg-green-500' : 'bg-on-surface-3/30'}`}>
+          <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 ${websiteToggle ? 'translate-x-5' : 'translate-x-0'}`} />
+        </button>
+      </div>
       {/* Details */}
       <div className="max-w-2xl mx-auto p-5 space-y-5">
         {/* Title + Status */}

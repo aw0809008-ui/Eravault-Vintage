@@ -13,6 +13,7 @@ export interface InventoryItem {
   soldDate: string; notes: string; listingLink: string; images: string; videos: string;
   pieces: string; saleChannel: string;
   createdAt: string; updatedAt: string;
+  showOnWebsite: boolean;
 }
 
 interface DbRow {
@@ -21,6 +22,7 @@ interface DbRow {
   sold_date: string | null; notes: string | null; listing_link: string | null;
   images: string | null; videos: string | null; pieces: number | null; sale_channel: string | null;
   created_at: string; updated_at: string;
+  show_on_website: boolean;
 }
 
 function toFrontend(r: DbRow): InventoryItem {
@@ -33,6 +35,7 @@ function toFrontend(r: DbRow): InventoryItem {
     images: r.images || '', videos: r.videos || '',
     pieces: String(r.pieces || 1), saleChannel: r.sale_channel || 'fleek',
     createdAt: r.created_at, updatedAt: r.updated_at,
+    showOnWebsite: r.show_on_website ?? false,
   };
 }
 
@@ -173,4 +176,14 @@ export async function seedDemoData(): Promise<void> {
 
 export function isSupabaseConfigured(): boolean {
   return supabaseUrl !== 'https://placeholder.supabase.co';
+}
+
+
+export async function toggleShowOnWebsite(id: string, value: boolean) {
+  const { error } = await supabase
+    .from('inventory')
+    .update({ show_on_website: value, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { console.error('Toggle error:', error); throw error; }
+  return { success: true };
 }
