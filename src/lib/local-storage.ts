@@ -1,5 +1,13 @@
-// Local Storage Backend (fallback when Google Sheets not configured)
-// Data persists in browser - perfect for PWA offline use
+// Local Storage with Google Sheets Sync
+
+import { 
+  isSheetConfigured, 
+  fetchFromSheet, 
+  addToSheet, 
+  updateInSheet, 
+  deleteFromSheet,
+  type SheetItem 
+} from './google-sheets';
 
 export interface InventoryItem {
   id: string;
@@ -14,12 +22,14 @@ export interface InventoryItem {
   soldDate: string;
   notes: string;
   listingLink: string;
+  images: string; // Comma-separated URLs
+  videos: string; // Comma-separated URLs
   createdAt: string;
   updatedAt: string;
 }
 
-const STORAGE_KEY = "eravauly_inventory";
-const USER_KEY = "eravauly_user";
+const STORAGE_KEY = "eravault_inventory";
+const USER_KEY = "eravault_user";
 
 export interface LocalUser {
   id: string;
@@ -28,7 +38,24 @@ export interface LocalUser {
   createdAt: string;
 }
 
-// Get all items from local storage
+// Get all items (from Sheet if configured, else local)
+export async function getInventoryAsync(): Promise<InventoryItem[]> {
+  if (isSheetConfigured()) {
+    try {
+      const items = await fetchFromSheet();
+      if (items.length > 0) {
+        // Cache locally
+        saveLocalInventory(items);
+        return items;
+      }
+    } catch {
+      // Fall back to local
+    }
+  }
+  return getLocalInventory();
+}
+
+// Get from local storage only
 export function getLocalInventory(): InventoryItem[] {
   if (typeof window === "undefined") return [];
   try {
@@ -39,42 +66,130 @@ export function getLocalInventory(): InventoryItem[] {
   }
 }
 
-// Save all items to local storage
+// Save to local storage
 export function saveLocalInventory(items: InventoryItem[]): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
-// Add item to local storage
-export function addLocalItem(item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">): InventoryItem {
-  const items = getLocalInventory();
+// Add item (to Sheet if configured, always to local)
+export async function addItemAsync(item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">): Promise<InventoryItem> {
   const newItem: InventoryItem = {
     ...item,
     id: `erv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  
+  // Save to local first
+  const items = getLocalInventory();
   items.unshift(newItem);
   saveLocalInventory(items);
+  
+  // Then try to save to Sheet
+  if (isSheetConfigured()) {
+    try {
+      await addToSheet(item as SheetItem);
+    } catch (e) {
+      console.error('Failed to save to sheet:', e);
+    }
+  }
+  
   return newItem;
 }
 
-// Update item in local storage
-export function updateLocalItem(updatedItem: InventoryItem): InventoryItem {
+// Update item
+export async function updateItemAsync(updatedItem: InventoryItem): Promise<InventoryItem> {
+  const item = { ...updatedItem, updatedAt: new Date().toISOString() };
+  
+  // Update local
   const items = getLocalInventory();
-  const index = items.findIndex((i) => i.id === updatedItem.id);
+  const index = items.findIndex((i) => i.id === item.id);
   if (index !== -1) {
-    items[index] = { ...updatedItem, updatedAt: new Date().toISOString() };
+    items[index] = item;
     saveLocalInventory(items);
   }
-  return items[index] || updatedItem;
+  
+  // Update Sheet
+  if (isSheetConfigured()) {
+    try {
+      await updateInSheet(item as SheetItem);
+    } catch (e) {
+      console.error('Failed to update in sheet:', e);
+    }
+  }
+  
+  return item;
 }
 
-// Delete item from local storage
+// Delete item
+export async function deleteItemAsync(id: string): Promise<boolean> {
+  // Delete from local
+  const items = getLocalInventory();
+  const filtered = items.filter((i) => i.id !== id);
+  saveLocalInventory(filtered);
+  
+  // Delete from Sheet
+  if (isSheetConfigured()) {
+    try {
+      await deleteFromSheet(id);
+    } catch (e) {
+      console.error('Failed to delete from sheet:', e);
+    }
+  }
+  
+  return true;
+}
+
+// Legacy sync functions for backward compatibility
+export function addLocalItem(item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">): InventoryItem {
+  const newItem: InventoryItem = {
+    ...item,
+    images: item.images || '',
+    videos: item.videos || '',
+    id: `erv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const items = getLocalInventory();
+  items.unshift(newItem);
+  saveLocalInventory(items);
+  
+  // Also save to sheet in background
+  if (isSheetConfigured()) {
+    addToSheet(newItem as SheetItem).catch(() => {});
+  }
+  
+  return newItem;
+}
+
+export function updateLocalItem(item: InventoryItem): InventoryItem {
+  const updated = { ...item, updatedAt: new Date().toISOString() };
+  const items = getLocalInventory();
+  const index = items.findIndex((i) => i.id === item.id);
+  if (index !== -1) {
+    items[index] = updated;
+    saveLocalInventory(items);
+  }
+  
+  // Also update sheet in background
+  if (isSheetConfigured()) {
+    updateInSheet(updated as SheetItem).catch(() => {});
+  }
+  
+  return updated;
+}
+
 export function deleteLocalItem(id: string): boolean {
   const items = getLocalInventory();
   const filtered = items.filter((i) => i.id !== id);
   saveLocalInventory(filtered);
+  
+  // Also delete from sheet in background
+  if (isSheetConfigured()) {
+    deleteFromSheet(id).catch(() => {});
+  }
+  
   return filtered.length < items.length;
 }
 
@@ -99,7 +214,7 @@ export function clearLocalUser(): void {
   localStorage.removeItem(USER_KEY);
 }
 
-// Seed demo data with new grading system
+// Seed demo data with new fields
 export function seedDemoData(): void {
   const existing = getLocalInventory();
   if (existing.length > 0) return;
@@ -115,8 +230,10 @@ export function seedDemoData(): void {
       status: "Sold",
       sourcingDate: "2024-11-15",
       soldDate: "2024-12-02",
-      notes: "Great condition, barely any fading. Buyer loved it.",
+      notes: "Great condition, barely any fading",
       listingLink: "",
+      images: "",
+      videos: "",
     },
     {
       itemName: "Y2K Women's Flare Jeans - Low Rise",
@@ -128,8 +245,10 @@ export function seedDemoData(): void {
       status: "Active on Fleek",
       sourcingDate: "2024-12-01",
       soldDate: "",
-      notes: "Slight whisker fade, very trendy.",
+      notes: "Slight whisker fade, very trendy",
       listingLink: "https://fleek.com/listing/y2k-flare-jeans",
+      images: "",
+      videos: "",
     },
     {
       itemName: "Vintage Carhartt Detroit Jacket - Brown",
@@ -141,8 +260,10 @@ export function seedDemoData(): void {
       status: "Shipped",
       sourcingDate: "2024-10-20",
       soldDate: "2024-11-18",
-      notes: "Classic workwear piece. Minor wear on cuffs.",
+      notes: "Classic workwear piece",
       listingLink: "",
+      images: "",
+      videos: "",
     },
     {
       itemName: "Vintage Nike Center Swoosh Tee - Grey",
@@ -155,10 +276,12 @@ export function seedDemoData(): void {
       sourcingDate: "2024-12-05",
       soldDate: "",
       notes: "",
-      listingLink: "https://fleek.com/listing/nike-swoosh-tee",
+      listingLink: "",
+      images: "",
+      videos: "",
     },
     {
-      itemName: "Y2K Baggy Cargo Pants - Olive Green",
+      itemName: "Y2K Baggy Cargo Pants - Olive",
       category: "Pants",
       size: "W32/L30",
       condition: "AB",
@@ -167,138 +290,10 @@ export function seedDemoData(): void {
       status: "Sold",
       sourcingDate: "2024-11-01",
       soldDate: "2024-11-25",
-      notes: "Multiple pockets, great for streetwear fits.",
+      notes: "Multiple pockets",
       listingLink: "",
-    },
-    {
-      itemName: "Vintage Tommy Hilfiger Striped Polo",
-      category: "Polo Shirts",
-      size: "M",
-      condition: "A",
-      sourcingCost: "15.00",
-      sellingPrice: "65.00",
-      status: "Active on Fleek",
-      sourcingDate: "2024-12-08",
-      soldDate: "",
-      notes: "NWT! Found at estate sale. Amazing find.",
-      listingLink: "https://fleek.com/listing/tommy-polo-striped",
-    },
-    {
-      itemName: "90s Champion Reverse Weave Hoodie - Red",
-      category: "Hoodies",
-      size: "L",
-      condition: "B",
-      sourcingCost: "18.00",
-      sellingPrice: "72.00",
-      status: "Sold",
-      sourcingDate: "2024-10-15",
-      soldDate: "2024-11-10",
-      notes: "Thick fleece, logo slightly cracked but adds character.",
-      listingLink: "",
-    },
-    {
-      itemName: "Vintage Levi's 501 Jeans - Stonewash",
-      category: "Jeans",
-      size: "W34/L32",
-      condition: "AB",
-      sourcingCost: "14.00",
-      sellingPrice: "58.00",
-      status: "Active on Fleek",
-      sourcingDate: "2024-12-10",
-      soldDate: "",
-      notes: "",
-      listingLink: "https://fleek.com/listing/levis-501-stonewash",
-    },
-    {
-      itemName: "Vintage Patagonia Fleece Pullover - Teal",
-      category: "Knits",
-      size: "M",
-      condition: "A",
-      sourcingCost: "20.00",
-      sellingPrice: "85.00",
-      status: "Sourced",
-      sourcingDate: "2024-12-12",
-      soldDate: "",
-      notes: "Need to clean and photograph for listing.",
-      listingLink: "",
-    },
-    {
-      itemName: "Y2K Ed Hardy Graphic Tee - Dragon Print",
-      category: "Tees",
-      size: "L",
-      condition: "B",
-      sourcingCost: "7.00",
-      sellingPrice: "42.00",
-      status: "Active on Fleek",
-      sourcingDate: "2024-12-03",
-      soldDate: "",
-      notes: "Iconic Y2K piece, print is vibrant.",
-      listingLink: "https://fleek.com/listing/ed-hardy-dragon",
-    },
-    {
-      itemName: "Vintage Polo Ralph Lauren Cable Knit Sweater",
-      category: "Sweaters",
-      size: "L",
-      condition: "AB",
-      sourcingCost: "12.00",
-      sellingPrice: "55.00",
-      status: "Sold",
-      sourcingDate: "2024-09-20",
-      soldDate: "2024-10-15",
-      notes: "Perfect for fall/winter. Cotton knit.",
-      listingLink: "",
-    },
-    {
-      itemName: "North Face Nuptse 700 Puffer Jacket - Black",
-      category: "Outerwear",
-      size: "M",
-      condition: "BC",
-      sourcingCost: "45.00",
-      sellingPrice: "150.00",
-      status: "Shipped",
-      sourcingDate: "2024-11-05",
-      soldDate: "2024-12-01",
-      notes: "Minor down leak patched. Still very warm.",
-      listingLink: "",
-    },
-    {
-      itemName: "Vintage Wrangler Bootcut Jeans - Dark Wash",
-      category: "Jeans",
-      size: "W30/L34",
-      condition: "C",
-      sourcingCost: "6.00",
-      sellingPrice: "",
-      status: "Sourced",
-      sourcingDate: "2024-12-14",
-      soldDate: "",
-      notes: "Needs hem repair before listing.",
-      listingLink: "",
-    },
-    {
-      itemName: "90s Adidas Trefoil Hoodie - Black/White",
-      category: "Hoodies",
-      size: "XL",
-      condition: "A",
-      sourcingCost: "16.00",
-      sellingPrice: "62.00",
-      status: "Active on Fleek",
-      sourcingDate: "2024-12-06",
-      soldDate: "",
-      notes: "",
-      listingLink: "https://fleek.com/listing/adidas-trefoil-hoodie",
-    },
-    {
-      itemName: "Vintage Lacoste Polo - Forest Green",
-      category: "Polo Shirts",
-      size: "S",
-      condition: "A",
-      sourcingCost: "9.00",
-      sellingPrice: "38.00",
-      status: "Sold",
-      sourcingDate: "2024-10-28",
-      soldDate: "2024-11-20",
-      notes: "Classic croc logo, perfect condition.",
-      listingLink: "",
+      images: "",
+      videos: "",
     },
   ];
 

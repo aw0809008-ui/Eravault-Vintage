@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, X, Image, Video } from "lucide-react";
 
 const DEFAULT_CATEGORIES = [
   { value: "Jeans", label: "Jeans" },
@@ -63,6 +63,8 @@ export interface ItemFormData {
   soldDate: string;
   notes: string;
   listingLink: string;
+  images: string;
+  videos: string;
 }
 
 const emptyForm: ItemFormData = {
@@ -77,6 +79,8 @@ const emptyForm: ItemFormData = {
   soldDate: "",
   notes: "",
   listingLink: "",
+  images: "",
+  videos: "",
 };
 
 function getCustomCategories(): string[] {
@@ -112,6 +116,8 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategoryInput, setCustomCategoryInput] = useState("");
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
 
   useEffect(() => {
     const custom = getCustomCategories();
@@ -128,7 +134,36 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
     setErrors({});
     setShowCustomCategory(false);
     setCustomCategoryInput("");
+    setNewImageUrl("");
+    setNewVideoUrl("");
   }, [initialData, open]);
+
+  const imageList = form.images ? form.images.split(',').filter(Boolean) : [];
+  const videoList = form.videos ? form.videos.split(',').filter(Boolean) : [];
+
+  function addImage() {
+    if (!newImageUrl.trim()) return;
+    const updated = [...imageList, newImageUrl.trim()].join(',');
+    setForm(prev => ({ ...prev, images: updated }));
+    setNewImageUrl("");
+  }
+
+  function removeImage(index: number) {
+    const updated = imageList.filter((_, i) => i !== index).join(',');
+    setForm(prev => ({ ...prev, images: updated }));
+  }
+
+  function addVideo() {
+    if (!newVideoUrl.trim()) return;
+    const updated = [...videoList, newVideoUrl.trim()].join(',');
+    setForm(prev => ({ ...prev, videos: updated }));
+    setNewVideoUrl("");
+  }
+
+  function removeVideo(index: number) {
+    const updated = videoList.filter((_, i) => i !== index).join(',');
+    setForm(prev => ({ ...prev, videos: updated }));
+  }
 
   function validate(): boolean {
     const errs: Record<string, string> = {};
@@ -171,8 +206,7 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
     const trimmed = customCategoryInput.trim();
     if (trimmed && !categories.find(c => c.value.toLowerCase() === trimmed.toLowerCase())) {
       saveCustomCategory(trimmed);
-      const newCategories = [...categories.filter(c => c.value !== "Others"), { value: trimmed, label: trimmed }, { value: "Others", label: "Others" }];
-      setCategories(newCategories);
+      setCategories(prev => [...prev.filter(c => c.value !== "Others"), { value: trimmed, label: trimmed }, { value: "Others", label: "Others" }]);
       updateField("category", trimmed);
     }
     setShowCustomCategory(false);
@@ -183,7 +217,7 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Item" : "Add Item"}</DialogTitle>
           <DialogDescription>
@@ -237,12 +271,12 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="sourcingCost">Cost ($) *</Label>
+              <Label htmlFor="sourcingCost">Cost (£) *</Label>
               <Input id="sourcingCost" type="number" step="0.01" min="0" placeholder="0.00" value={form.sourcingCost} onChange={(e) => updateField("sourcingCost", e.target.value)} />
               {errors.sourcingCost && <p className="text-xs text-red-500">{errors.sourcingCost}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sellingPrice">Price ($)</Label>
+              <Label htmlFor="sellingPrice">Price (£)</Label>
               <Input id="sellingPrice" type="number" step="0.01" min="0" placeholder="0.00" value={form.sellingPrice} onChange={(e) => updateField("sellingPrice", e.target.value)} />
               {errors.sellingPrice && <p className="text-xs text-red-500">{errors.sellingPrice}</p>}
             </div>
@@ -264,6 +298,74 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
             </div>
           </div>
 
+          {/* Images Section */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Image className="w-4 h-4" /> Images
+            </Label>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Paste image URL..." 
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImage(); }}}
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addImage}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            {imageList.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imageList.map((url, i) => (
+                  <div key={i} className="relative group">
+                    <img src={url} alt="" className="w-16 h-16 object-cover rounded-lg border" style={{ borderColor: 'var(--border-primary)' }} />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Upload images to Google Drive/Photos, then paste the shareable link
+            </p>
+          </div>
+
+          {/* Videos Section */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Video className="w-4 h-4" /> Videos
+            </Label>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Paste video URL (YouTube, etc)..." 
+                value={newVideoUrl}
+                onChange={(e) => setNewVideoUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addVideo(); }}}
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addVideo}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            {videoList.length > 0 && (
+              <div className="space-y-1 mt-2">
+                {videoList.map((url, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 rounded-lg text-sm" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                    <Video className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                    <span className="truncate flex-1" style={{ color: 'var(--text-secondary)' }}>{url}</span>
+                    <button type="button" onClick={() => removeVideo(i)} className="text-red-500">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="listingLink">Listing Link</Label>
             <Input id="listingLink" type="url" placeholder="https://..." value={form.listingLink} onChange={(e) => updateField("listingLink", e.target.value)} />
@@ -277,7 +379,7 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemForm
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{isEditing ? "Updating..." : "Adding..."}</> : isEditing ? "Update" : "Add Item"}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{isEditing ? "Saving..." : "Adding..."}</> : isEditing ? "Save" : "Add Item"}
             </Button>
           </div>
         </form>
