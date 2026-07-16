@@ -1,88 +1,100 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, BarChart3, Settings, LogOut, Menu, X, ChevronLeft, User, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Package, BarChart3, Settings, LogOut, Menu, X, ChevronLeft, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/supabase";
 import { useTheme } from "@/lib/theme";
 
-interface DashboardShellProps { children: React.ReactNode; user: { name: string; email: string } | null; }
-
-const navItems = [
+const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/inventory", label: "Inventory", icon: Package },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function DashboardShell({ children, user }: DashboardShellProps) {
-  const pathname = usePathname();
+export function DashboardShell({ children, user }: { children: React.ReactNode; user: { name: string; email: string } | null }) {
+  const path = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  async function handleLogout() {
-    await signOut();
-    router.push("/login");
-  }
+  async function logout() { await signOut(); router.push("/login"); }
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+    <div className="min-h-screen flex bg-[--bg]">
+      {open && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setOpen(false)} />}
 
-      <aside className={cn("fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col transition-all duration-300 border-r theme-transition", collapsed ? "lg:w-[70px]" : "lg:w-64", sidebarOpen ? "w-64 translate-x-0 animate-slide-in-left" : "-translate-x-full lg:translate-x-0")} style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
-        <div className="flex items-center justify-between px-4 h-16 border-b theme-transition" style={{ borderColor: 'var(--border-primary)' }}>
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-lg" style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>E</div>
-            {!collapsed && <div><span className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>Eravault</span><span className="text-[10px] block -mt-0.5 font-medium" style={{ color: 'var(--text-muted)' }}>VINTAGE</span></div>}
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-[--bg-sub] border-r border-[--border] transition-all duration-200",
+        collapsed ? "lg:w-16" : "lg:w-56",
+        open ? "w-56 translate-x-0 animate-slide-in" : "-translate-x-full lg:translate-x-0"
+      )}>
+        {/* Logo */}
+        <div className="flex items-center justify-between px-3 h-14 border-b border-[--border]">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[--bg-accent] text-[--bg] flex items-center justify-center font-bold text-sm shrink-0">E</div>
+            {!collapsed && <span className="font-semibold text-sm text-[--text]">Eravault</span>}
           </Link>
-          <button className="lg:hidden cursor-pointer" style={{ color: 'var(--text-muted)' }} onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
+          <button className="lg:hidden text-[--text-dim] cursor-pointer" onClick={() => setOpen(false)}><X className="w-4 h-4" /></button>
         </div>
 
-        <nav className="flex-1 py-4 px-2 space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+        {/* Nav items */}
+        <nav className="flex-1 py-3 px-2 space-y-0.5">
+          {nav.map(n => {
+            const active = path === n.href || (n.href !== "/dashboard" && path.startsWith(n.href));
             return (
-              <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200", isActive ? "bg-[--accent] text-[--bg-primary]" : "text-[--text-secondary] hover:text-[--text-primary] hover:bg-[--bg-hover]")}>
-                <item.icon className="w-5 h-5 flex-shrink-0" />{!collapsed && <span>{item.label}</span>}
+              <Link key={n.href} href={n.href} onClick={() => setOpen(false)}
+                className={cn("flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-colors",
+                  active ? "bg-[--bg-accent] text-[--bg]" : "text-[--text-sub] hover:text-[--text] hover:bg-[--bg-hover]"
+                )}>
+                <n.icon className="w-4 h-4 shrink-0" />{!collapsed && <span>{n.label}</span>}
               </Link>
             );
           })}
         </nav>
 
-        <div className="px-2 py-2 border-t theme-transition" style={{ borderColor: 'var(--border-primary)' }}>
-          <button onClick={toggleTheme} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-[--text-secondary] hover:text-[--text-primary] hover:bg-[--bg-hover] transition-all">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}{!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
+        {/* Bottom controls */}
+        <div className="border-t border-[--border] p-2 space-y-0.5">
+          <button onClick={toggleTheme} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium w-full text-[--text-sub] hover:text-[--text] hover:bg-[--bg-hover] transition-colors cursor-pointer">
+            {theme === "dark" ? <Sun className="w-4 h-4 shrink-0" /> : <Moon className="w-4 h-4 shrink-0" />}
+            {!collapsed && <span>{theme === "dark" ? "Light" : "Dark"}</span>}
+          </button>
+          <button onClick={logout} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium w-full text-[--text-sub] hover:text-red-500 hover:bg-[--bg-hover] transition-colors cursor-pointer">
+            <LogOut className="w-4 h-4 shrink-0" />{!collapsed && <span>Sign out</span>}
           </button>
         </div>
 
-        <button className="hidden lg:flex items-center justify-center py-3 border-t theme-transition cursor-pointer" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-muted)' }} onClick={() => setCollapsed(!collapsed)}>
-          <ChevronLeft className={cn("w-5 h-5 transition-transform duration-200", collapsed && "rotate-180")} />
+        {/* Collapse */}
+        <button className="hidden lg:flex items-center justify-center py-2.5 border-t border-[--border] text-[--text-dim] hover:text-[--text] cursor-pointer transition-colors" onClick={() => setCollapsed(!collapsed)}>
+          <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
         </button>
 
-        <div className="border-t p-3 theme-transition" style={{ borderColor: 'var(--border-primary)' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-primary)' }}><User className="w-4 h-4" style={{ color: 'var(--text-muted)' }} /></div>
-            {!collapsed && <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{user?.name || "Guest"}</p><p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.email || ""}</p></div>}
-            <button onClick={handleLogout} title="Sign out" className="transition-colors cursor-pointer flex-shrink-0 hover:text-red-500" style={{ color: 'var(--text-muted)' }}><LogOut className="w-4 h-4" /></button>
+        {/* User */}
+        <div className="border-t border-[--border] p-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-[--bg-hover] border border-[--border] flex items-center justify-center shrink-0 text-[11px] font-semibold text-[--text-sub]">
+              {(user?.name || "?")[0].toUpperCase()}
+            </div>
+            {!collapsed && <div className="min-w-0"><p className="text-xs font-medium text-[--text] truncate">{user?.name}</p><p className="text-[11px] text-[--text-dim] truncate">{user?.email}</p></div>}
           </div>
         </div>
       </aside>
 
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden border-b px-4 h-14 flex items-center justify-between sticky top-0 z-30 theme-transition" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
-          <button onClick={() => setSidebarOpen(true)} className="cursor-pointer" style={{ color: 'var(--text-secondary)' }}><Menu className="w-6 h-6" /></button>
-          <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm" style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>E</div><span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Eravault</span></div>
-          <div className="flex items-center gap-2">
-            <button onClick={toggleTheme} className="p-1" style={{ color: 'var(--text-secondary)' }}>{theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}</button>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8"><LogOut className="w-4 h-4" /></Button>
+        <header className="lg:hidden bg-[--bg-sub] border-b border-[--border] px-4 h-12 flex items-center justify-between sticky top-0 z-30">
+          <button onClick={() => setOpen(true)} className="text-[--text-sub] cursor-pointer"><Menu className="w-5 h-5" /></button>
+          <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-[--bg-accent] text-[--bg] flex items-center justify-center font-bold text-[10px]">E</div><span className="font-semibold text-sm text-[--text]">Eravault</span></div>
+          <div className="flex items-center gap-1">
+            <button onClick={toggleTheme} className="p-1.5 text-[--text-sub] cursor-pointer">{theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}</button>
+            <button onClick={logout} className="p-1.5 text-[--text-sub] hover:text-red-500 cursor-pointer"><LogOut className="w-4 h-4" /></button>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );

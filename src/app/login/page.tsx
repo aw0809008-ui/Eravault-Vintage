@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -16,66 +15,33 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getSession().then(s => { if (s) router.push("/dashboard"); });
-  }, [router]);
+  useEffect(() => { getSession().then(s => { if (s) router.push("/dashboard"); }); }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    if (!isSupabaseConfigured()) {
-      setError("Supabase not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await signIn(email, password);
-      router.push("/dashboard");
-      router.refresh();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Login failed";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+    e.preventDefault(); setError(""); setLoading(true);
+    if (!isSupabaseConfigured()) { setError("Supabase not configured"); setLoading(false); return; }
+    try { await signIn(email, password); router.push("/dashboard"); router.refresh(); }
+    catch (err: unknown) { setError(err instanceof Error ? err.message : "Login failed"); }
+    finally { setLoading(false); }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-sm animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[--bg]">
+      <div className="w-full max-w-[360px] animate-fade-in">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 font-bold text-2xl" style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>E</div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Eravault</h1>
-          <p className="text-xs font-medium tracking-widest mt-1" style={{ color: 'var(--text-muted)' }}>VINTAGE</p>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 font-bold text-xl bg-[--bg-accent] text-[--bg]">E</div>
+          <h1 className="text-xl font-bold text-[--text]">Eravault Vintage</h1>
         </div>
-
-        <div className="border rounded-2xl p-6 shadow-lg theme-transition" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-primary)' }}>
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Welcome back</h2>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Sign in to your account</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg px-4 py-3">{error}</div>}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Signing in...</> : "Sign In"}
-            </Button>
+        <div className="border border-[--border] rounded-xl p-5 bg-[--bg-el]">
+          <h2 className="text-base font-semibold text-[--text] mb-1">Sign in</h2>
+          <p className="text-xs text-[--text-dim] mb-5">Enter your credentials</p>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-lg px-3 py-2.5">{error}</div>}
+            <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+            <div className="space-y-1.5"><Label htmlFor="password">Password</Label><Input id="password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? <><Loader2 className="w-4 h-4 animate-spin" />Signing in...</> : "Sign In"}</Button>
           </form>
-          <div className="mt-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-medium hover:underline" style={{ color: 'var(--text-primary)' }}>Sign up</Link>
-          </div>
+          <p className="mt-5 text-center text-xs text-[--text-dim]">No account? <Link href="/signup" className="font-medium text-[--text] hover:underline">Sign up</Link></p>
         </div>
       </div>
     </div>
