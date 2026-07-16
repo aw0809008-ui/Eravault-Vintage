@@ -59,7 +59,7 @@ export default function InventoryPage() {
 
   function openEdit(e: React.MouseEvent, item: InventoryItem) {
     e.stopPropagation();
-    setEditItem({ id:item.id, itemName:item.itemName, category:item.category, size:item.size, condition:item.condition, sourcingCost:item.sourcingCost, sellingPrice:item.sellingPrice||"", status:item.status, sourcingDate:item.sourcingDate?item.sourcingDate.split("T")[0]:"", soldDate:item.soldDate?item.soldDate.split("T")[0]:"", notes:item.notes||"", listingLink:item.listingLink||"", images:item.images||"", videos:item.videos||"" });
+    setEditItem({ id:item.id, itemName:item.itemName, category:item.category, size:item.size, condition:item.condition, sourcingCost:item.sourcingCost, sellingPrice:item.sellingPrice||"", status:item.status, sourcingDate:item.sourcingDate?item.sourcingDate.split("T")[0]:"", soldDate:item.soldDate?item.soldDate.split("T")[0]:"", notes:item.notes||"", listingLink:item.listingLink||"", images:item.images||"", videos:item.videos||"", pieces: "1", saleChannel: "fleek" });
     setFormOpen(true);
   }
 

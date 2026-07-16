@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Plus, X, Camera, Video, Upload, ImageIcon } from "lucide-react";
-import { uploadFiles, isVideo } from "@/lib/storage";
+import { Loader2, Plus, X, Camera, Video, Upload } from "lucide-react";
+import { uploadFiles } from "@/lib/storage";
+import { formatCurrency } from "@/lib/utils";
 
 const CATEGORIES = [
   { value: "Jeans", label: "Jeans" },{ value: "Polo Shirts", label: "Polo Shirts" },
@@ -29,17 +30,22 @@ const STATUSES = [
   { value: "Sourced", label: "Sourced" },{ value: "Active on Fleek", label: "Active on Fleek" },
   { value: "Sold", label: "Sold" },{ value: "Shipped", label: "Shipped" },
 ];
+const SALE_CHANNELS = [
+  { value: "fleek", label: "Fleek (15% commission)" },
+  { value: "offline", label: "Offline / Direct Sale" },
+];
 
 export interface ItemFormData {
   id?: string; itemName: string; category: string; size: string; condition: string;
   sourcingCost: string; sellingPrice: string; status: string; sourcingDate: string;
   soldDate: string; notes: string; listingLink: string; images: string; videos: string;
+  pieces: string; saleChannel: string;
 }
 
 const empty: ItemFormData = {
   itemName: "", category: "Tees", size: "", condition: "B", sourcingCost: "", sellingPrice: "",
   status: "Sourced", sourcingDate: new Date().toISOString().split("T")[0], soldDate: "",
-  notes: "", listingLink: "", images: "", videos: "",
+  notes: "", listingLink: "", images: "", videos: "", pieces: "1", saleChannel: "fleek",
 };
 
 function getCustomCats(): string[] { if (typeof window === "undefined") return []; try { return JSON.parse(localStorage.getItem("ev_cats") || "[]"); } catch { return []; } }
@@ -64,12 +70,22 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: Props) {
   }, [open]);
 
   useEffect(() => {
-    setForm(initialData || empty);
+    setForm(initialData ? { ...empty, ...initialData, pieces: initialData.pieces || "1", saleChannel: initialData.saleChannel || "fleek" } : empty);
     setErrors({}); setShowCustomCat(false); setCustomCat("");
   }, [initialData, open]);
 
   const imageList = form.images ? form.images.split(',').filter(Boolean) : [];
   const videoList = form.videos ? form.videos.split(',').filter(Boolean) : [];
+
+  // Calculations
+  const pieces = parseInt(form.pieces) || 1;
+  const pricePerPiece = parseFloat(form.sellingPrice) || 0;
+  const costPerPiece = parseFloat(form.sourcingCost) || 0;
+  const totalSaleAmount = pricePerPiece * pieces;
+  const totalCostAmount = costPerPiece * pieces;
+  const fleekCommission = form.saleChannel === "fleek" ? totalSaleAmount * 0.15 : 0;
+  const netRevenue = totalSaleAmount - fleekCommission;
+  const netProfit = netRevenue - totalCostAmount;
 
   async function handleFileUpload(files: FileList | null, type: 'images' | 'videos') {
     if (!files || files.length === 0) return;
@@ -156,82 +172,73 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: Props) {
             <div className="space-y-1.5"><Label>Grade *</Label><Select options={CONDITIONS} value={form.condition} onChange={e => uf("condition", e.target.value)} /></div>
           </div>
 
-          {/* Cost, Price, Status */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-1.5"><Label>Cost (£) *</Label><Input type="number" step="0.01" min="0" placeholder="0.00" value={form.sourcingCost} onChange={e => uf("sourcingCost", e.target.value)} className="h-10" />{errors.sourcingCost && <p className="text-xs text-red">{errors.sourcingCost}</p>}</div>
-            <div className="space-y-1.5"><Label>Price (£)</Label><Input type="number" step="0.01" min="0" placeholder="0.00" value={form.sellingPrice} onChange={e => uf("sellingPrice", e.target.value)} className="h-10" />{errors.sellingPrice && <p className="text-xs text-red">{errors.sellingPrice}</p>}</div>
-            <div className="space-y-1.5"><Label>Status *</Label><Select options={STATUSES} value={form.status} onChange={e => uf("status", e.target.value)} /></div>
+          {/* Pieces + Cost per piece + Price per piece */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="space-y-1.5"><Label>Pieces</Label><Input type="number" min="1" placeholder="1" value={form.pieces} onChange={e => uf("pieces", e.target.value)} className="h-10" /></div>
+            <div className="space-y-1.5"><Label>Cost/Piece (£) *</Label><Input type="number" step="0.01" min="0" placeholder="0.00" value={form.sourcingCost} onChange={e => uf("sourcingCost", e.target.value)} className="h-10" />{errors.sourcingCost && <p className="text-xs text-red">{errors.sourcingCost}</p>}</div>
+            <div className="space-y-1.5"><Label>Price/Piece (£)</Label><Input type="number" step="0.01" min="0" placeholder="0.00" value={form.sellingPrice} onChange={e => uf("sellingPrice", e.target.value)} className="h-10" />{errors.sellingPrice && <p className="text-xs text-red">{errors.sellingPrice}</p>}</div>
+            <div className="space-y-1.5"><Label>Sell Via</Label><Select options={SALE_CHANNELS} value={form.saleChannel} onChange={e => uf("saleChannel", e.target.value)} /></div>
           </div>
 
-          {/* Dates */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Profit Calculator */}
+          {pricePerPiece > 0 && (
+            <div className="bg-surface-2 rounded-xl p-3.5 space-y-2">
+              <p className="text-[12px] font-semibold text-on-surface-3 uppercase tracking-wider">Profit Calculator</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[13px]">
+                <div><p className="text-on-surface-3 text-[11px]">Total Sale</p><p className="font-bold text-on-surface">{formatCurrency(totalSaleAmount)}</p><p className="text-[10px] text-on-surface-3">{pieces} × {formatCurrency(pricePerPiece)}</p></div>
+                {form.saleChannel === "fleek" && <div><p className="text-on-surface-3 text-[11px]">Fleek 15%</p><p className="font-bold text-red">-{formatCurrency(fleekCommission)}</p></div>}
+                <div><p className="text-on-surface-3 text-[11px]">Total Cost</p><p className="font-bold text-on-surface">{formatCurrency(totalCostAmount)}</p><p className="text-[10px] text-on-surface-3">{pieces} × {formatCurrency(costPerPiece)}</p></div>
+                <div><p className="text-on-surface-3 text-[11px]">Net Profit</p><p className={`font-bold text-[16px] ${netProfit >= 0 ? "text-green" : "text-red"}`}>{netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}</p>
+                  {totalCostAmount > 0 && <p className={`text-[10px] font-semibold ${netProfit >= 0 ? "text-green" : "text-red"}`}>{Math.round((netProfit / totalCostAmount) * 100)}% ROI</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Status + Dates */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5"><Label>Status *</Label><Select options={STATUSES} value={form.status} onChange={e => uf("status", e.target.value)} /></div>
             <div className="space-y-1.5"><Label>Sourcing Date *</Label><Input type="date" value={form.sourcingDate} onChange={e => uf("sourcingDate", e.target.value)} className="h-10" /></div>
             <div className="space-y-1.5"><Label>Sold Date</Label><Input type="date" value={form.soldDate} onChange={e => uf("soldDate", e.target.value)} className="h-10" /></div>
           </div>
 
-          {/* ===== PHOTOS ===== */}
+          {/* Photos */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><Camera className="w-4 h-4" />Photos</Label>
             <input ref={photoRef} type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={e => handleFileUpload(e.target.files, 'images')} />
-            
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => photoRef.current?.click()} disabled={uploading}>
-                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
-                Take Photo
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => { if (photoRef.current) { photoRef.current.removeAttribute('capture'); photoRef.current.click(); photoRef.current.setAttribute('capture', 'environment'); }}} disabled={uploading}>
-                <Upload className="w-3.5 h-3.5" />Gallery
-              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => photoRef.current?.click()} disabled={uploading}>{uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}Camera</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (photoRef.current) { photoRef.current.removeAttribute('capture'); photoRef.current.click(); photoRef.current.setAttribute('capture', 'environment'); }}} disabled={uploading}><Upload className="w-3.5 h-3.5" />Gallery</Button>
             </div>
-
-            {imageList.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {imageList.map((url, i) => (
-                  <div key={i} className="relative group w-20 h-20 rounded-xl overflow-hidden border border-line bg-surface-2">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => removeMedia('images', i)} className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+            {imageList.length > 0 && <div className="flex flex-wrap gap-2 mt-2">{imageList.map((url, i) => (
+              <div key={i} className="relative group w-20 h-20 rounded-xl overflow-hidden border border-line bg-surface-2">
+                <img src={url} alt="" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => removeMedia('images', i)} className="absolute top-1 right-1 w-5 h-5 bg-red text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"><X className="w-3 h-3" /></button>
               </div>
-            )}
+            ))}</div>}
           </div>
 
-          {/* ===== VIDEOS ===== */}
+          {/* Videos */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><Video className="w-4 h-4" />Videos</Label>
             <input ref={videoRef} type="file" accept="video/*" multiple capture="environment" className="hidden" onChange={e => handleFileUpload(e.target.files, 'videos')} />
-
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => videoRef.current?.click()} disabled={uploading}>
-                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Video className="w-3.5 h-3.5" />}
-                Record Video
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => { if (videoRef.current) { videoRef.current.removeAttribute('capture'); videoRef.current.click(); videoRef.current.setAttribute('capture', 'environment'); }}} disabled={uploading}>
-                <Upload className="w-3.5 h-3.5" />From Gallery
-              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => videoRef.current?.click()} disabled={uploading}>{uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Video className="w-3.5 h-3.5" />}Record</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (videoRef.current) { videoRef.current.removeAttribute('capture'); videoRef.current.click(); videoRef.current.setAttribute('capture', 'environment'); }}} disabled={uploading}><Upload className="w-3.5 h-3.5" />Gallery</Button>
             </div>
-
-            {videoList.length > 0 && (
-              <div className="space-y-2 mt-2">
-                {videoList.map((url, i) => (
-                  <div key={i} className="relative group rounded-xl overflow-hidden border border-line bg-surface-2">
-                    <video src={url} controls className="w-full max-h-40 rounded-xl" />
-                    <button type="button" onClick={() => removeMedia('videos', i)} className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+            {videoList.length > 0 && <div className="space-y-2 mt-2">{videoList.map((url, i) => (
+              <div key={i} className="relative group rounded-xl overflow-hidden border border-line bg-surface-2">
+                <video src={url} controls className="w-full max-h-40 rounded-xl" />
+                <button type="button" onClick={() => removeMedia('videos', i)} className="absolute top-2 right-2 w-6 h-6 bg-red text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"><X className="w-3.5 h-3.5" /></button>
               </div>
-            )}
+            ))}</div>}
           </div>
 
-          {uploading && <div className="flex items-center gap-2 text-[13px] text-primary"><Loader2 className="w-4 h-4 animate-spin" />Uploading files to cloud...</div>}
+          {uploading && <div className="flex items-center gap-2 text-[13px] text-primary"><Loader2 className="w-4 h-4 animate-spin" />Uploading...</div>}
 
           {/* Link & Notes */}
           <div className="space-y-1.5"><Label>Listing Link</Label><Input type="url" placeholder="https://fleek.com/listing/..." value={form.listingLink} onChange={e => uf("listingLink", e.target.value)} className="h-10" /></div>
-          <div className="space-y-1.5"><Label>Notes</Label><Textarea placeholder="Condition details, measurements etc." value={form.notes} onChange={e => uf("notes", e.target.value)} rows={2} /></div>
+          <div className="space-y-1.5"><Label>Notes</Label><Textarea placeholder="Condition details, measurements..." value={form.notes} onChange={e => uf("notes", e.target.value)} rows={2} /></div>
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-3 border-t border-line">
