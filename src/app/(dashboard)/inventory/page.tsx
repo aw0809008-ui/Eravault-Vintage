@@ -113,7 +113,11 @@ export default function InventoryPage() {
             const vids = item.videos ? item.videos.split(',').filter(Boolean) : [];
             const mediaCount = imgs.length + vids.length;
             const thumb = imgs[0] || null;
-            const profit = item.sellingPrice && item.sourcingCost ? parseFloat(item.sellingPrice) - parseFloat(item.sourcingCost) : null;
+            const pcs = parseInt(item.pieces) || 1;
+            const totalCost = (parseFloat(item.sourcingCost) || 0) * pcs;
+            const totalPrice = (parseFloat(item.sellingPrice) || 0) * pcs;
+            const fleekCut = item.saleChannel === 'fleek' ? totalPrice * 0.15 : 0;
+            const profit = item.sellingPrice ? (totalPrice - fleekCut - totalCost) : null;
 
             return (
               <Card key={item.id} className="cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setViewItem(item)}>
@@ -145,14 +149,20 @@ export default function InventoryPage() {
                         <span className="text-[12px] text-on-surface-2 font-mono">{item.size}</span>
                         <span className="text-on-surface-3 text-[10px]">•</span>
                         <ConditionBadge condition={item.condition} />
+                        {pcs > 1 && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] font-semibold text-primary">{pcs} pcs</span></>}
+                        {item.saleChannel === 'offline' && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] text-on-surface-3">Offline</span></>}
                         {mediaCount > 0 && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] text-on-surface-3 flex items-center gap-0.5">{vids.length > 0 && <Play className="w-3 h-3" />}<ImageIcon className="w-3 h-3" />{mediaCount}</span></>}
                       </div>
 
                         <div className="flex items-center justify-between mt-2.5">
                         <div className="flex items-center gap-3 text-[13px]">
-                          <span className="font-semibold text-on-surface">{item.sellingPrice ? formatCurrency(item.sellingPrice) : formatCurrency(item.sourcingCost)}</span>
+                          <div>
+                            <span className="font-semibold text-on-surface">{item.sellingPrice ? formatCurrency(totalPrice) : formatCurrency(totalCost)}</span>
+                            {pcs > 1 && <span className="text-[10px] text-on-surface-3 ml-1">({pcs}×{formatCurrency(item.sellingPrice || item.sourcingCost)})</span>}
+                          </div>
                           {profit !== null && <span className={`font-bold text-[12px] ${profit >= 0 ? "text-green" : "text-red"}`}>{profit >= 0 ? "+" : ""}{formatCurrency(profit)}</span>}
-                          {(() => { const pct = profitPercent(item.sourcingCost, item.sellingPrice); return pct !== null ? <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${pct >= 0 ? "bg-green/10 text-green" : "bg-red/10 text-red"}`}>{pct >= 0 ? "+" : ""}{pct}%</span> : null; })()}
+                          {profit !== null && totalCost > 0 && <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${profit >= 0 ? "bg-green/10 text-green" : "bg-red/10 text-red"}`}>{profit >= 0 ? "+" : ""}{Math.round((profit / totalCost) * 100)}%</span>}
+                          {fleekCut > 0 && <span className="text-[10px] text-on-surface-3">-{formatCurrency(fleekCut)} fleek</span>}
                         </div>
                         <div className="flex items-center gap-0.5" onClick={e => e.stopPropagation()}>
                           <ShareMenu item={item} />

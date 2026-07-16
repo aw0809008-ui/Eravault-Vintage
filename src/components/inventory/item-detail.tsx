@@ -20,8 +20,13 @@ export function ItemDetail({ item, onClose }: Props) {
   const [current, setCurrent] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const profit = item.sellingPrice && item.sourcingCost
-    ? parseFloat(item.sellingPrice) - parseFloat(item.sourcingCost) : null;
+  const pcs = parseInt(item.pieces) || 1;
+  const costPer = parseFloat(item.sourcingCost) || 0;
+  const pricePer = parseFloat(item.sellingPrice) || 0;
+  const totalCost = costPer * pcs;
+  const totalPrice = pricePer * pcs;
+  const fleekCut = item.saleChannel === 'fleek' ? totalPrice * 0.15 : 0;
+  const profit = item.sellingPrice ? (totalPrice - fleekCut - totalCost) : null;
 
   function scrollTo(idx: number) {
     setCurrent(idx);
@@ -111,32 +116,57 @@ export function ItemDetail({ item, onClose }: Props) {
             <span className="text-[13px] text-on-surface-2 font-mono">{item.size}</span>
             <span className="text-on-surface-3">·</span>
             <ConditionBadge condition={item.condition} />
+            {pcs > 1 && <><span className="text-on-surface-3">·</span><span className="text-[13px] font-semibold text-primary">{pcs} pieces</span></>}
+            <span className="text-on-surface-3">·</span>
+            <span className="text-[12px] text-on-surface-3">{item.saleChannel === 'fleek' ? 'Via Fleek' : 'Offline Sale'}</span>
           </div>
         </div>
 
         {/* Price Card */}
-        <div className="bg-surface-2 rounded-2xl p-4">
+        <div className="bg-surface-2 rounded-2xl p-4 space-y-3">
+          {/* Per piece prices */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <p className="text-[11px] text-on-surface-3 font-medium">Cost</p>
-              <p className="text-[18px] font-bold text-on-surface mt-0.5">{formatCurrency(item.sourcingCost)}</p>
+              <p className="text-[11px] text-on-surface-3 font-medium">Cost{pcs > 1 ? '/piece' : ''}</p>
+              <p className="text-[16px] font-bold text-on-surface mt-0.5">{formatCurrency(costPer)}</p>
             </div>
             <div>
-              <p className="text-[11px] text-on-surface-3 font-medium">Selling Price</p>
-              <p className="text-[18px] font-bold text-on-surface mt-0.5">{item.sellingPrice ? formatCurrency(item.sellingPrice) : "—"}</p>
+              <p className="text-[11px] text-on-surface-3 font-medium">Price{pcs > 1 ? '/piece' : ''}</p>
+              <p className="text-[16px] font-bold text-on-surface mt-0.5">{pricePer ? formatCurrency(pricePer) : "—"}</p>
             </div>
             <div>
-              <p className="text-[11px] text-on-surface-3 font-medium">Profit</p>
-              <p className={`text-[18px] font-bold mt-0.5 ${profit !== null ? (profit >= 0 ? "text-green" : "text-red") : "text-on-surface-3"}`}>
-                {profit !== null ? `${profit >= 0 ? "+" : ""}${formatCurrency(profit)}` : "—"}
-              </p>
-              {profit !== null && parseFloat(item.sourcingCost) > 0 && (
-                <p className={`text-[11px] font-semibold ${profit >= 0 ? "text-green" : "text-red"}`}>
-                  {Math.round((profit / parseFloat(item.sourcingCost)) * 100)}% ROI
-                </p>
-              )}
+              <p className="text-[11px] text-on-surface-3 font-medium">Pieces</p>
+              <p className="text-[16px] font-bold text-primary mt-0.5">{pcs}</p>
             </div>
           </div>
+
+          {/* Totals — only show if pieces > 1 or has selling price */}
+          {pricePer > 0 && (
+            <div className="border-t border-line pt-3">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-[11px] text-on-surface-3 font-medium">Total Cost</p>
+                  <p className="text-[16px] font-bold text-on-surface mt-0.5">{formatCurrency(totalCost)}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] text-on-surface-3 font-medium">Total Sale</p>
+                  <p className="text-[16px] font-bold text-on-surface mt-0.5">{formatCurrency(totalPrice)}</p>
+                  {fleekCut > 0 && <p className="text-[10px] text-red mt-0.5">-{formatCurrency(fleekCut)} Fleek 15%</p>}
+                </div>
+                <div>
+                  <p className="text-[11px] text-on-surface-3 font-medium">Net Profit</p>
+                  <p className={`text-[18px] font-bold mt-0.5 ${profit !== null ? (profit >= 0 ? "text-green" : "text-red") : "text-on-surface-3"}`}>
+                    {profit !== null ? `${profit >= 0 ? "+" : ""}${formatCurrency(profit)}` : "—"}
+                  </p>
+                  {profit !== null && totalCost > 0 && (
+                    <p className={`text-[11px] font-semibold ${profit >= 0 ? "text-green" : "text-red"}`}>
+                      {Math.round((profit / totalCost) * 100)}% ROI
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Info List */}
