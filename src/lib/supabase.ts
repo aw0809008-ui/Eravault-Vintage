@@ -74,9 +74,27 @@ export async function signUp(email: string, password: string, name: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { name } },
+    options: { 
+      data: { name },
+      emailRedirectTo: typeof window !== 'undefined' ? window.location.origin + '/dashboard' : undefined,
+    },
   });
   if (error) throw error;
+  
+  // If email confirmation is required, user won't be auto-logged in
+  // Try to sign in immediately (works if autoconfirm is enabled)
+  if (!data.session) {
+    try {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!signInError && signInData.session) return signInData;
+    } catch {
+      // Email confirmation required - that's ok
+    }
+  }
+  
   return data;
 }
 

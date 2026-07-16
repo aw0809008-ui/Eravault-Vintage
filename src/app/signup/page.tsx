@@ -33,15 +33,21 @@ export default function SignupPage() {
     }
 
     try {
-      await signUp(email, password, name);
-      // Seed demo data after signup
-      setTimeout(() => seedDemoData(), 1000);
-      router.push("/dashboard");
-      router.refresh();
+      const result = await signUp(email, password, name);
+      
+      if (result.session) {
+        // Auto-confirmed - go to dashboard
+        setTimeout(() => seedDemoData(), 1000);
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        // Email confirmation required
+        setError("Check your email to confirm your account, then sign in.");
+        setLoading(false);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Signup failed";
       setError(msg);
-    } finally {
       setLoading(false);
     }
   }
