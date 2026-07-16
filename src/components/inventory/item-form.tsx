@@ -35,12 +35,12 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const CONDITIONS = [
-  { value: "A", label: "A - Excellent/Like New" },
-  { value: "AB", label: "AB - Very Good" },
-  { value: "B", label: "B - Good" },
-  { value: "BC", label: "BC - Fair" },
-  { value: "C", label: "C - Acceptable" },
-  { value: "ABC", label: "ABC - Mixed Condition" },
+  { value: "A", label: "Grade A - Excellent" },
+  { value: "AB", label: "Grade AB - Very Good" },
+  { value: "B", label: "Grade B - Good" },
+  { value: "BC", label: "Grade BC - Fair" },
+  { value: "C", label: "Grade C - Acceptable" },
+  { value: "ABC", label: "Grade ABC - Mixed" },
 ];
 
 const STATUSES = [
@@ -79,24 +79,22 @@ const emptyForm: ItemFormData = {
   listingLink: "",
 };
 
-// Get custom categories from localStorage
 function getCustomCategories(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const data = localStorage.getItem("eravauly_custom_categories");
+    const data = localStorage.getItem("eravault_custom_categories");
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
 }
 
-// Save custom category to localStorage
 function saveCustomCategory(category: string): void {
   if (typeof window === "undefined") return;
   const existing = getCustomCategories();
   if (!existing.includes(category)) {
     existing.push(category);
-    localStorage.setItem("eravauly_custom_categories", JSON.stringify(existing));
+    localStorage.setItem("eravault_custom_categories", JSON.stringify(existing));
   }
 }
 
@@ -121,7 +119,6 @@ export function ItemForm({
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
 
   useEffect(() => {
-    // Load custom categories
     const custom = getCustomCategories();
     const customOptions = custom.map(c => ({ value: c, label: c }));
     setCategories([...DEFAULT_CATEGORIES.filter(c => c.value !== "Others"), ...customOptions, { value: "Others", label: "Others" }]);
@@ -143,13 +140,13 @@ export function ItemForm({
     if (!form.itemName.trim()) errs.itemName = "Item name is required";
     if (!form.size.trim()) errs.size = "Size is required";
     if (!form.sourcingCost || parseFloat(form.sourcingCost) < 0)
-      errs.sourcingCost = "Valid sourcing cost is required";
-    if (!form.sourcingDate) errs.sourcingDate = "Sourcing date is required";
+      errs.sourcingCost = "Valid sourcing cost required";
+    if (!form.sourcingDate) errs.sourcingDate = "Sourcing date required";
     if (
       (form.status === "Sold" || form.status === "Shipped") &&
       !form.sellingPrice
     )
-      errs.sellingPrice = "Selling price required for sold/shipped items";
+      errs.sellingPrice = "Selling price required for sold items";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -162,7 +159,7 @@ export function ItemForm({
       await onSubmit(form);
       onOpenChange(false);
     } catch {
-      // error handled upstream
+      // handled
     } finally {
       setLoading(false);
     }
@@ -197,18 +194,17 @@ export function ItemForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl">
             {isEditing ? "Edit Item" : "Add New Item"}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Update the details of your vintage item"
-              : "Add a new vintage piece to your inventory"}
+              ? "Update your vintage piece details"
+              : "Add a new piece to your collection"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Item Name */}
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-2">
             <Label htmlFor="itemName">Item Name *</Label>
             <Input
@@ -218,18 +214,17 @@ export function ItemForm({
               onChange={(e) => updateField("itemName", e.target.value)}
             />
             {errors.itemName && (
-              <p className="text-xs text-red-500">{errors.itemName}</p>
+              <p className="text-xs text-red-400">{errors.itemName}</p>
             )}
           </div>
 
-          {/* Row: Category, Size, Condition */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
               {showCustomCategory ? (
                 <div className="flex gap-2">
                   <Input
-                    placeholder="New category name"
+                    placeholder="New category"
                     value={customCategoryInput}
                     onChange={(e) => setCustomCategoryInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -240,12 +235,7 @@ export function ItemForm({
                     }}
                     autoFocus
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    onClick={handleAddCustomCategory}
-                    className="shrink-0"
-                  >
+                  <Button type="button" size="icon" onClick={handleAddCustomCategory}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -263,8 +253,7 @@ export function ItemForm({
                     variant="outline"
                     size="icon"
                     onClick={() => setShowCustomCategory(true)}
-                    title="Add custom category"
-                    className="shrink-0"
+                    title="Add custom"
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -280,7 +269,7 @@ export function ItemForm({
                 onChange={(e) => updateField("size", e.target.value)}
               />
               {errors.size && (
-                <p className="text-xs text-red-500">{errors.size}</p>
+                <p className="text-xs text-red-400">{errors.size}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -294,10 +283,9 @@ export function ItemForm({
             </div>
           </div>
 
-          {/* Row: Costs & Status */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="sourcingCost">Sourcing Cost ($) *</Label>
+              <Label htmlFor="sourcingCost">Cost ($) *</Label>
               <Input
                 id="sourcingCost"
                 type="number"
@@ -308,11 +296,11 @@ export function ItemForm({
                 onChange={(e) => updateField("sourcingCost", e.target.value)}
               />
               {errors.sourcingCost && (
-                <p className="text-xs text-red-500">{errors.sourcingCost}</p>
+                <p className="text-xs text-red-400">{errors.sourcingCost}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sellingPrice">Selling Price ($)</Label>
+              <Label htmlFor="sellingPrice">Price ($)</Label>
               <Input
                 id="sellingPrice"
                 type="number"
@@ -323,7 +311,7 @@ export function ItemForm({
                 onChange={(e) => updateField("sellingPrice", e.target.value)}
               />
               {errors.sellingPrice && (
-                <p className="text-xs text-red-500">{errors.sellingPrice}</p>
+                <p className="text-xs text-red-400">{errors.sellingPrice}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -337,7 +325,6 @@ export function ItemForm({
             </div>
           </div>
 
-          {/* Row: Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="sourcingDate">Sourcing Date *</Label>
@@ -348,7 +335,7 @@ export function ItemForm({
                 onChange={(e) => updateField("sourcingDate", e.target.value)}
               />
               {errors.sourcingDate && (
-                <p className="text-xs text-red-500">{errors.sourcingDate}</p>
+                <p className="text-xs text-red-400">{errors.sourcingDate}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -362,9 +349,8 @@ export function ItemForm({
             </div>
           </div>
 
-          {/* Listing Link */}
           <div className="space-y-2">
-            <Label htmlFor="listingLink">Fleek Listing Link</Label>
+            <Label htmlFor="listingLink">Listing Link</Label>
             <Input
               id="listingLink"
               type="url"
@@ -374,28 +360,22 @@ export function ItemForm({
             />
           </div>
 
-          {/* Notes */}
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
-              placeholder="Add any notes about the item, condition details, etc."
+              placeholder="Add notes about condition, details, etc."
               value={form.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               rows={3}
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" variant="gold" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />

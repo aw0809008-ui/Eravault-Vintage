@@ -4,27 +4,21 @@ import "./globals.css";
 import { PWARegister } from "@/components/pwa-register";
 
 export const metadata: Metadata = {
-  title: "Eravauly Vintage — Inventory Management",
-  description: "Vintage clothing inventory management for Fleek sellers. Track sourcing, listings, and profits.",
+  title: "Eravault Vintage — Premium Inventory",
+  description: "Premium vintage clothing inventory management for Fleek sellers",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Eravauly",
+    title: "Eravault",
   },
   formatDetection: {
     telephone: false,
   },
-  openGraph: {
-    type: "website",
-    title: "Eravauly Vintage",
-    description: "Vintage clothing inventory management for Fleek sellers",
-    siteName: "Eravauly Vintage",
-  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#d97706",
+  themeColor: "#0a0a0f",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -33,18 +27,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="bg-stone-50 text-stone-900 antialiased min-h-screen">
+      <body className="bg-[#0a0a0f] text-slate-200 antialiased min-h-screen">
         {children}
         <PWARegister />
       </body>

@@ -14,19 +14,19 @@ interface CategoryChartProps {
 }
 
 const COLORS = [
-  "#d97706",
-  "#2563eb",
-  "#16a34a",
-  "#dc2626",
-  "#7c3aed",
-  "#0891b2",
-  "#ea580c",
+  "#facc15",
+  "#3b82f6",
+  "#10b981",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f97316",
 ];
 
 export function CategoryChart({ data }: CategoryChartProps) {
   if (data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-stone-400 text-sm">
+      <div className="h-64 flex items-center justify-center text-slate-500 text-sm">
         No category data yet. Add items to see breakdown!
       </div>
     );
@@ -44,8 +44,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
             outerRadius={90}
             paddingAngle={3}
             dataKey="value"
-            strokeWidth={2}
-            stroke="#fff"
+            strokeWidth={0}
           >
             {data.map((_, index) => (
               <Cell
@@ -56,14 +55,15 @@ export function CategoryChart({ data }: CategoryChartProps) {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#fff",
-              border: "1px solid #e7e5e4",
-              borderRadius: "8px",
+              backgroundColor: "#0f172a",
+              border: "1px solid #334155",
+              borderRadius: "12px",
               fontSize: "13px",
+              color: "#e2e8f0",
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: "12px" }}
+            wrapperStyle={{ fontSize: "12px", color: "#94a3b8" }}
             iconType="circle"
             iconSize={8}
           />

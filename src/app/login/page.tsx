@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Crown, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { getLocalUser, setLocalUser, seedDemoData } from "@/lib/local-storage";
 
@@ -18,7 +17,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if already logged in
     const user = getLocalUser();
     if (user) {
       router.push("/dashboard");
@@ -30,15 +28,12 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Simple validation
     if (!email || !password) {
       setError("Please enter email and password");
       setLoading(false);
       return;
     }
 
-    // For demo purposes, any valid email/password works
-    // In production, this would validate against Google Sheets user data
     const user = {
       id: `user_${Date.now()}`,
       name: email.split("@")[0],
@@ -47,82 +42,92 @@ export default function LoginPage() {
     };
 
     setLocalUser(user);
-    seedDemoData(); // Load demo inventory if empty
+    seedDemoData();
 
     router.push("/dashboard");
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 px-4">
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl mb-4 shadow-lg shadow-amber-600/30">
-            <Sparkles className="w-8 h-8 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] px-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-amber-500/5" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+      
+      <div className="w-full max-w-md animate-fade-in relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-2xl mb-6 shadow-2xl shadow-yellow-500/30 animate-pulse-gold">
+            <Crown className="w-10 h-10 text-slate-900" />
           </div>
-          <h1 className="text-3xl font-bold text-stone-900">Eravauly</h1>
-          <p className="text-amber-600 font-medium">Vintage</p>
-          <p className="text-stone-500 mt-2">Inventory Management for Fleek Sellers</p>
+          <h1 className="text-4xl font-bold text-slate-100 tracking-tight">Eravault</h1>
+          <p className="text-yellow-500 font-semibold text-sm mt-1 tracking-widest">VINTAGE COLLECTION</p>
+          <p className="text-slate-500 mt-3">Premium Inventory Management</p>
         </div>
 
-        <Card className="shadow-xl border-stone-200/50">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">Welcome back</CardTitle>
-            <CardDescription>Sign in to manage your vintage inventory</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-                  {error}
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
-            <div className="mt-6 text-center text-sm text-stone-500">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/signup"
-                className="text-amber-600 hover:text-amber-700 font-medium"
-              >
-                Sign up free
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Card */}
+        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-black/50">
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-semibold text-slate-100">Welcome Back</h2>
+            <p className="text-slate-500 text-sm mt-1">Sign in to your account</p>
+          </div>
 
-        <p className="text-center text-xs text-stone-400 mt-6">
-          📱 Install as app for the best experience on mobile
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3">
+                {error}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" variant="gold" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Sign In
+                </>
+              )}
+            </Button>
+          </form>
+          
+          <div className="mt-8 text-center text-sm text-slate-500">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/signup"
+              className="text-yellow-500 hover:text-yellow-400 font-medium"
+            >
+              Create one free
+            </Link>
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-slate-600 mt-8">
+          📱 Install as app for the best experience
         </p>
       </div>
     </div>

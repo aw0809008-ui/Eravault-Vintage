@@ -2,21 +2,21 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
+  "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold transition-colors",
   {
     variants: {
       variant: {
-        default: "bg-stone-100 text-stone-800",
-        sourced: "bg-blue-100 text-blue-800",
-        active: "bg-green-100 text-green-800",
-        sold: "bg-amber-100 text-amber-800",
-        shipped: "bg-purple-100 text-purple-800",
-        gradeA: "bg-emerald-100 text-emerald-800",
-        gradeB: "bg-blue-100 text-blue-800",
-        gradeC: "bg-orange-100 text-orange-800",
-        gradeAB: "bg-teal-100 text-teal-800",
-        gradeBC: "bg-yellow-100 text-yellow-800",
-        gradeABC: "bg-pink-100 text-pink-800",
+        default: "bg-slate-800 text-slate-300 border border-slate-700",
+        sourced: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+        active: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+        sold: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+        shipped: "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+        gradeA: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+        gradeB: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+        gradeC: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
+        gradeAB: "bg-teal-500/20 text-teal-400 border border-teal-500/30",
+        gradeBC: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+        gradeABC: "bg-pink-500/20 text-pink-400 border border-pink-500/30",
       },
     },
     defaultVariants: {
@@ -56,18 +56,9 @@ export function ConditionBadge({ condition }: { condition: string }) {
     ABC: "gradeABC",
   };
 
-  const labels: Record<string, string> = {
-    A: "A",
-    B: "B",
-    C: "C",
-    AB: "AB",
-    BC: "BC",
-    ABC: "ABC",
-  };
-
   return (
     <Badge variant={variantMap[condition] || "default"}>
-      {labels[condition] || condition}
+      {condition}
     </Badge>
   );
 }
