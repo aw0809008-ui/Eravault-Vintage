@@ -8,7 +8,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     getUser().then(u => {
       if (!u) { router.push("/login"); return; }
@@ -16,12 +15,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setLoading(false);
     });
   }, [router]);
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[--bg]">
-      <div className="w-7 h-7 border-2 border-[--border] border-t-[--text] rounded-full animate-spin" />
-    </div>
-  );
-
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-page"><div className="w-7 h-7 border-2 border-line border-t-primary rounded-full animate-spin" /></div>;
   return <DashboardShell user={user}>{children}</DashboardShell>;
 }
