@@ -8,11 +8,7 @@ export const metadata: Metadata = {
   title: "Eravault Vintage — Inventory",
   description: "Premium vintage clothing inventory management for Fleek sellers",
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Eravault",
-  },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Eravault" },
 };
 
 export const viewport: Viewport = {
@@ -29,14 +25,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="antialiased min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <body className="antialiased min-h-screen bg-[--bg] text-[--text]">
         <ThemeProvider>
           {children}
           <PWARegister />
