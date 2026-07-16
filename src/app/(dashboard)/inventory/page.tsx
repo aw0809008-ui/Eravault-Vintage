@@ -10,6 +10,7 @@ import { StatusBadge, ConditionBadge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ItemForm, type ItemFormData } from "@/components/inventory/item-form";
 import { ItemDetail } from "@/components/inventory/item-detail";
+import { ShareMenu } from "@/components/inventory/share-menu";
 import { formatCurrency, profitPercent } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getInventory, addInventoryItem, updateInventoryItem, deleteInventoryItem, type InventoryItem } from "@/lib/supabase";
@@ -153,7 +154,8 @@ export default function InventoryPage() {
                           {profit !== null && <span className={`font-bold text-[12px] ${profit >= 0 ? "text-green" : "text-red"}`}>{profit >= 0 ? "+" : ""}{formatCurrency(profit)}</span>}
                           {(() => { const pct = profitPercent(item.sourcingCost, item.sellingPrice); return pct !== null ? <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${pct >= 0 ? "bg-green/10 text-green" : "bg-red/10 text-red"}`}>{pct >= 0 ? "+" : ""}{pct}%</span> : null; })()}
                         </div>
-                        <div className="flex items-center gap-0.5">
+                        <div className="flex items-center gap-0.5" onClick={e => e.stopPropagation()}>
+                          <ShareMenu item={item} />
                           <button onClick={(e) => openEdit(e, item)} className="p-2 rounded-lg hover:bg-surface-2 text-on-surface-3 cursor-pointer transition-colors" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
                           <button onClick={(e) => { e.stopPropagation(); setDelId(item.id); setDelName(item.itemName); setDelOpen(true); }} className="p-2 rounded-lg hover:bg-red/10 text-red cursor-pointer transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
                         </div>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Play, Package, ExternalLink, Calendar, Tag, Ruler, Star } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play, Package, ExternalLink, Calendar, Tag, Ruler, Star, Share2 } from "lucide-react";
 import { StatusBadge, ConditionBadge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { ShareMenu } from "@/components/inventory/share-menu";
 import type { InventoryItem } from "@/lib/supabase";
 
 interface Props {
@@ -35,7 +36,10 @@ export function ItemDetail({ item, onClose }: Props) {
           <ChevronLeft className="w-4 h-4" />Back
         </button>
         <span className="text-[13px] font-semibold text-on-surface truncate max-w-[200px]">{item.itemName}</span>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 text-on-surface-3 cursor-pointer"><X className="w-4 h-4" /></button>
+        <div className="flex items-center gap-1">
+          <ShareMenu item={item} />
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 text-on-surface-3 cursor-pointer"><X className="w-4 h-4" /></button>
+        </div>
       </div>
 
       {/* Media Carousel */}
