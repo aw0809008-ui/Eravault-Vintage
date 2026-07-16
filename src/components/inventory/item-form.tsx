@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Loader2, Plus, X, Camera, Video, Upload } from "lucide-react";
 import { uploadFiles } from "@/lib/storage";
 import { formatCurrency } from "@/lib/utils";
@@ -198,8 +199,8 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: Props) {
           {/* Status + Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5"><Label>Status *</Label><Select options={STATUSES} value={form.status} onChange={e => uf("status", e.target.value)} /></div>
-            <div className="space-y-1.5"><Label>Sourcing Date *</Label><Input type="date" value={form.sourcingDate} onChange={e => uf("sourcingDate", e.target.value)} className="h-10" /></div>
-            <div className="space-y-1.5"><Label>Sold Date</Label><Input type="date" value={form.soldDate} onChange={e => uf("soldDate", e.target.value)} className="h-10" /></div>
+            <div className="space-y-1.5"><Label>Sourcing Date *</Label><DatePicker value={form.sourcingDate} onChange={e => uf("sourcingDate", e.target.value)} placeholder="Select date" /></div>
+            <div className="space-y-1.5"><Label>Sold Date</Label><DatePicker value={form.soldDate} onChange={e => uf("soldDate", e.target.value)} placeholder="Select date" /></div>
           </div>
 
           {/* Photos */}
