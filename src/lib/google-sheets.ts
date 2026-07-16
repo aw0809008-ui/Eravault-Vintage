@@ -1,9 +1,11 @@
 // Google Sheets Integration
 // Sheet ID from your URL: 1AYeAU8i72yUG_l53Mg_uM7YycibnNMSeEkGYPnOLbrQ
 
+const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlo7n_imMnAaAlvw5bErl9Ehf84HSxbUPUhBxg-jfq9-b2g7JZkjlYUVitvoBaO8QnLQ/exec";
+
 const APPS_SCRIPT_URL = typeof window !== 'undefined' 
-  ? localStorage.getItem('eravault_apps_script_url') || ''
-  : '';
+  ? localStorage.getItem('eravault_apps_script_url') || DEFAULT_APPS_SCRIPT_URL
+  : DEFAULT_APPS_SCRIPT_URL;
 
 export interface SheetItem {
   id: string;
@@ -27,7 +29,7 @@ export interface SheetItem {
 // Check if Google Sheets is configured
 export function isSheetConfigured(): boolean {
   if (typeof window === 'undefined') return false;
-  const url = localStorage.getItem('eravault_apps_script_url');
+  const url = localStorage.getItem('eravault_apps_script_url') || DEFAULT_APPS_SCRIPT_URL;
   return !!url && url.length > 0;
 }
 
@@ -39,8 +41,8 @@ export function setAppsScriptUrl(url: string): void {
 
 // Get the Apps Script URL
 export function getAppsScriptUrl(): string {
-  if (typeof window === 'undefined') return '';
-  return localStorage.getItem('eravault_apps_script_url') || '';
+  if (typeof window === 'undefined') return DEFAULT_APPS_SCRIPT_URL;
+  return localStorage.getItem('eravault_apps_script_url') || DEFAULT_APPS_SCRIPT_URL;
 }
 
 // Fetch all items from Google Sheet
@@ -51,7 +53,7 @@ export async function fetchFromSheet(): Promise<SheetItem[]> {
   try {
     const response = await fetch(`${url}?action=getAll`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      redirect: 'follow',
     });
     
     if (!response.ok) throw new Error('Failed to fetch');
@@ -79,7 +81,8 @@ export async function addToSheet(item: Omit<SheetItem, 'id' | 'createdAt' | 'upd
     
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'add', item: newItem }),
     });
     
@@ -105,7 +108,8 @@ export async function updateInSheet(item: SheetItem): Promise<SheetItem | null> 
     
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'update', item: updatedItem }),
     });
     
@@ -126,7 +130,8 @@ export async function deleteFromSheet(id: string): Promise<boolean> {
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'delete', id }),
     });
     
