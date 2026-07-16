@@ -10,7 +10,7 @@ import { StatusBadge, ConditionBadge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ItemForm, type ItemFormData } from "@/components/inventory/item-form";
 import { ItemDetail } from "@/components/inventory/item-detail";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, profitPercent } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getInventory, addInventoryItem, updateInventoryItem, deleteInventoryItem, type InventoryItem } from "@/lib/supabase";
 
@@ -147,10 +147,11 @@ export default function InventoryPage() {
                         {mediaCount > 0 && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] text-on-surface-3 flex items-center gap-0.5">{vids.length > 0 && <Play className="w-3 h-3" />}<ImageIcon className="w-3 h-3" />{mediaCount}</span></>}
                       </div>
 
-                      <div className="flex items-center justify-between mt-2.5">
+                        <div className="flex items-center justify-between mt-2.5">
                         <div className="flex items-center gap-3 text-[13px]">
                           <span className="font-semibold text-on-surface">{item.sellingPrice ? formatCurrency(item.sellingPrice) : formatCurrency(item.sourcingCost)}</span>
                           {profit !== null && <span className={`font-bold text-[12px] ${profit >= 0 ? "text-green" : "text-red"}`}>{profit >= 0 ? "+" : ""}{formatCurrency(profit)}</span>}
+                          {(() => { const pct = profitPercent(item.sourcingCost, item.sellingPrice); return pct !== null ? <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${pct >= 0 ? "bg-green/10 text-green" : "bg-red/10 text-red"}`}>{pct >= 0 ? "+" : ""}{pct}%</span> : null; })()}
                         </div>
                         <div className="flex items-center gap-0.5">
                           <button onClick={(e) => openEdit(e, item)} className="p-2 rounded-lg hover:bg-surface-2 text-on-surface-3 cursor-pointer transition-colors" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>

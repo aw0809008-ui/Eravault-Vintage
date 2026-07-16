@@ -126,6 +126,11 @@ export function ItemDetail({ item, onClose }: Props) {
               <p className={`text-[18px] font-bold mt-0.5 ${profit !== null ? (profit >= 0 ? "text-green" : "text-red") : "text-on-surface-3"}`}>
                 {profit !== null ? `${profit >= 0 ? "+" : ""}${formatCurrency(profit)}` : "—"}
               </p>
+              {profit !== null && parseFloat(item.sourcingCost) > 0 && (
+                <p className={`text-[11px] font-semibold ${profit >= 0 ? "text-green" : "text-red"}`}>
+                  {Math.round((profit / parseFloat(item.sourcingCost)) * 100)}% ROI
+                </p>
+              )}
             </div>
           </div>
         </div>
