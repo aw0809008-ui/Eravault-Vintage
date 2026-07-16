@@ -6,29 +6,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 shadow-lg shadow-yellow-500/25 hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98]",
+          "bg-[--accent] text-[--bg-primary] hover:opacity-90 active:scale-[0.98]",
         destructive:
-          "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40",
+          "bg-red-600 text-white hover:bg-red-700",
         outline:
-          "border border-slate-700 bg-slate-800/50 text-slate-200 hover:bg-slate-700/50 hover:border-slate-600",
+          "border border-[--border-primary] bg-transparent text-[--text-primary] hover:bg-[--bg-hover]",
         secondary:
-          "bg-slate-800 text-slate-200 hover:bg-slate-700",
+          "bg-[--bg-tertiary] text-[--text-primary] hover:bg-[--bg-hover]",
         ghost: 
-          "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
+          "text-[--text-secondary] hover:bg-[--bg-hover] hover:text-[--text-primary]",
         link: 
-          "text-yellow-500 underline-offset-4 hover:underline",
-        gold:
-          "bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-slate-900 shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 hover:scale-[1.02]",
+          "text-[--text-primary] underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-11 px-5 py-2",
-        sm: "h-9 rounded-lg px-4 text-xs",
-        lg: "h-12 rounded-xl px-8 text-base",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3 text-xs",
+        lg: "h-11 rounded-lg px-6",
         icon: "h-10 w-10",
       },
     },

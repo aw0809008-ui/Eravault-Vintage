@@ -10,14 +10,10 @@ export function PWARegister() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch((err) => {
-        console.log("SW registration failed:", err);
-      });
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
 
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      return;
-    }
+    if (window.matchMedia("(display-mode: standalone)").matches) return;
 
     const handleBeforeInstall = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
@@ -28,81 +24,73 @@ export function PWARegister() {
     window.addEventListener("beforeinstallprompt", handleBeforeInstall as EventListener);
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isInStandaloneMode = window.matchMedia("(display-mode: standalone)").matches;
-    
-    if (isIOS && !isInStandaloneMode) {
-      const dismissed = localStorage.getItem("eravault_ios_prompt_dismissed");
-      if (!dismissed) {
-        setTimeout(() => setShowIOSPrompt(true), 3000);
-      }
+    if (isIOS && !window.matchMedia("(display-mode: standalone)").matches) {
+      const dismissed = localStorage.getItem("eravault_ios_dismissed");
+      if (!dismissed) setTimeout(() => setShowIOSPrompt(true), 3000);
     }
 
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstall as EventListener);
-    };
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall as EventListener);
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log("Install outcome:", outcome);
+    await deferredPrompt.userChoice;
     setDeferredPrompt(null);
     setShowInstallPrompt(false);
   };
 
-  const dismissIOSPrompt = () => {
-    localStorage.setItem("eravault_ios_prompt_dismissed", "true");
+  const dismiss = () => {
+    localStorage.setItem("eravault_ios_dismissed", "true");
     setShowIOSPrompt(false);
+    setShowInstallPrompt(false);
   };
 
   if (!showInstallPrompt && !showIOSPrompt) return null;
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50 animate-fade-in">
-      <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700 text-slate-100 rounded-2xl shadow-2xl shadow-black/50 p-5">
-        <button
-          onClick={() => {
-            setShowInstallPrompt(false);
-            dismissIOSPrompt();
-          }}
-          className="absolute top-3 right-3 text-slate-500 hover:text-slate-300 transition-colors"
-        >
-          <X className="w-5 h-5" />
+      <div 
+        className="rounded-xl p-4 shadow-lg border theme-transition"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-primary)' }}
+      >
+        <button onClick={dismiss} className="absolute top-3 right-3" style={{ color: 'var(--text-muted)' }}>
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
-            <Download className="w-7 h-7 text-slate-900" />
+        <div className="flex items-start gap-3">
+          <div 
+            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-bold"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}
+          >
+            <Download className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-slate-100">Install Eravault</h3>
-            <p className="text-slate-400 text-sm mt-1">
-              {showIOSPrompt
-                ? "Add to Home Screen for quick access"
-                : "Install for the best experience"}
+            <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Install App</h3>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              {showIOSPrompt ? "Add to Home Screen" : "Install for quick access"}
             </p>
           </div>
         </div>
 
         {showIOSPrompt ? (
-          <div className="mt-5 bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-            <div className="flex items-center gap-3 text-sm">
-              <span className="text-slate-400">1. Tap</span>
-              <Share className="w-5 h-5 text-blue-400" />
-              <span className="text-slate-400">Share</span>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <span>1. Tap</span>
+              <Share className="w-4 h-4" />
+              <span>Share</span>
             </div>
-            <div className="flex items-center gap-3 text-sm mt-3">
-              <span className="text-slate-400">2. Select</span>
-              <span className="font-medium text-slate-200">&quot;Add to Home Screen&quot;</span>
+            <div className="flex items-center gap-2 text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+              <span>2. Select &quot;Add to Home Screen&quot;</span>
             </div>
           </div>
         ) : (
           <button
             onClick={handleInstall}
-            className="mt-5 w-full bg-gradient-to-r from-yellow-400 to-amber-600 hover:from-yellow-500 hover:to-amber-700 text-slate-900 font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-yellow-500/20"
+            className="mt-4 w-full py-2.5 rounded-lg font-medium transition-opacity hover:opacity-90"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}
           >
-            Install Now
+            Install
           </button>
         )}
       </div>

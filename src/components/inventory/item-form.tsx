@@ -105,12 +105,7 @@ interface ItemFormProps {
   initialData?: ItemFormData | null;
 }
 
-export function ItemForm({
-  open,
-  onOpenChange,
-  onSubmit,
-  initialData,
-}: ItemFormProps) {
+export function ItemForm({ open, onOpenChange, onSubmit, initialData }: ItemFormProps) {
   const [form, setForm] = useState<ItemFormData>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -137,16 +132,12 @@ export function ItemForm({
 
   function validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!form.itemName.trim()) errs.itemName = "Item name is required";
-    if (!form.size.trim()) errs.size = "Size is required";
-    if (!form.sourcingCost || parseFloat(form.sourcingCost) < 0)
-      errs.sourcingCost = "Valid sourcing cost required";
-    if (!form.sourcingDate) errs.sourcingDate = "Sourcing date required";
-    if (
-      (form.status === "Sold" || form.status === "Shipped") &&
-      !form.sellingPrice
-    )
-      errs.sellingPrice = "Selling price required for sold items";
+    if (!form.itemName.trim()) errs.itemName = "Required";
+    if (!form.size.trim()) errs.size = "Required";
+    if (!form.sourcingCost || parseFloat(form.sourcingCost) < 0) errs.sourcingCost = "Required";
+    if (!form.sourcingDate) errs.sourcingDate = "Required";
+    if ((form.status === "Sold" || form.status === "Shipped") && !form.sellingPrice)
+      errs.sellingPrice = "Required for sold items";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -194,31 +185,25 @@ export function ItemForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">
-            {isEditing ? "Edit Item" : "Add New Item"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Item" : "Add Item"}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "Update your vintage piece details"
-              : "Add a new piece to your collection"}
+            {isEditing ? "Update item details" : "Add a new piece to your collection"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
             <Label htmlFor="itemName">Item Name *</Label>
             <Input
               id="itemName"
-              placeholder='e.g., "Vintage Y2K Baggy Cargo Pants"'
+              placeholder="e.g., Vintage Y2K Cargo Pants"
               value={form.itemName}
               onChange={(e) => updateField("itemName", e.target.value)}
             />
-            {errors.itemName && (
-              <p className="text-xs text-red-400">{errors.itemName}</p>
-            )}
+            {errors.itemName && <p className="text-xs text-red-500">{errors.itemName}</p>}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
               {showCustomCategory ? (
@@ -227,165 +212,72 @@ export function ItemForm({
                     placeholder="New category"
                     value={customCategoryInput}
                     onChange={(e) => setCustomCategoryInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddCustomCategory();
-                      }
-                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddCustomCategory(); }}}
                     autoFocus
                   />
-                  <Button type="button" size="icon" onClick={handleAddCustomCategory}>
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  <Button type="button" size="icon" onClick={handleAddCustomCategory}><Plus className="w-4 h-4" /></Button>
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <Select
-                    id="category"
-                    options={categories}
-                    value={form.category}
-                    onChange={(e) => updateField("category", e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowCustomCategory(true)}
-                    title="Add custom"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  <Select id="category" options={categories} value={form.category} onChange={(e) => updateField("category", e.target.value)} className="flex-1" />
+                  <Button type="button" variant="outline" size="icon" onClick={() => setShowCustomCategory(true)}><Plus className="w-4 h-4" /></Button>
                 </div>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="size">Size *</Label>
-              <Input
-                id="size"
-                placeholder="e.g., W32/L30, L, M"
-                value={form.size}
-                onChange={(e) => updateField("size", e.target.value)}
-              />
-              {errors.size && (
-                <p className="text-xs text-red-400">{errors.size}</p>
-              )}
+              <Input id="size" placeholder="e.g., W32/L30, L" value={form.size} onChange={(e) => updateField("size", e.target.value)} />
+              {errors.size && <p className="text-xs text-red-500">{errors.size}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="condition">Grade *</Label>
-              <Select
-                id="condition"
-                options={CONDITIONS}
-                value={form.condition}
-                onChange={(e) => updateField("condition", e.target.value)}
-              />
+              <Select id="condition" options={CONDITIONS} value={form.condition} onChange={(e) => updateField("condition", e.target.value)} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label htmlFor="sourcingCost">Cost ($) *</Label>
-              <Input
-                id="sourcingCost"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={form.sourcingCost}
-                onChange={(e) => updateField("sourcingCost", e.target.value)}
-              />
-              {errors.sourcingCost && (
-                <p className="text-xs text-red-400">{errors.sourcingCost}</p>
-              )}
+              <Input id="sourcingCost" type="number" step="0.01" min="0" placeholder="0.00" value={form.sourcingCost} onChange={(e) => updateField("sourcingCost", e.target.value)} />
+              {errors.sourcingCost && <p className="text-xs text-red-500">{errors.sourcingCost}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="sellingPrice">Price ($)</Label>
-              <Input
-                id="sellingPrice"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={form.sellingPrice}
-                onChange={(e) => updateField("sellingPrice", e.target.value)}
-              />
-              {errors.sellingPrice && (
-                <p className="text-xs text-red-400">{errors.sellingPrice}</p>
-              )}
+              <Input id="sellingPrice" type="number" step="0.01" min="0" placeholder="0.00" value={form.sellingPrice} onChange={(e) => updateField("sellingPrice", e.target.value)} />
+              {errors.sellingPrice && <p className="text-xs text-red-500">{errors.sellingPrice}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select
-                id="status"
-                options={STATUSES}
-                value={form.status}
-                onChange={(e) => updateField("status", e.target.value)}
-              />
+              <Select id="status" options={STATUSES} value={form.status} onChange={(e) => updateField("status", e.target.value)} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="sourcingDate">Sourcing Date *</Label>
-              <Input
-                id="sourcingDate"
-                type="date"
-                value={form.sourcingDate}
-                onChange={(e) => updateField("sourcingDate", e.target.value)}
-              />
-              {errors.sourcingDate && (
-                <p className="text-xs text-red-400">{errors.sourcingDate}</p>
-              )}
+              <Input id="sourcingDate" type="date" value={form.sourcingDate} onChange={(e) => updateField("sourcingDate", e.target.value)} />
+              {errors.sourcingDate && <p className="text-xs text-red-500">{errors.sourcingDate}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="soldDate">Sold Date</Label>
-              <Input
-                id="soldDate"
-                type="date"
-                value={form.soldDate}
-                onChange={(e) => updateField("soldDate", e.target.value)}
-              />
+              <Input id="soldDate" type="date" value={form.soldDate} onChange={(e) => updateField("soldDate", e.target.value)} />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="listingLink">Listing Link</Label>
-            <Input
-              id="listingLink"
-              type="url"
-              placeholder="https://fleek.com/listing/..."
-              value={form.listingLink}
-              onChange={(e) => updateField("listingLink", e.target.value)}
-            />
+            <Input id="listingLink" type="url" placeholder="https://..." value={form.listingLink} onChange={(e) => updateField("listingLink", e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              placeholder="Add notes about condition, details, etc."
-              value={form.notes}
-              onChange={(e) => updateField("notes", e.target.value)}
-              rows={3}
-            />
+            <Textarea id="notes" placeholder="Add notes..." value={form.notes} onChange={(e) => updateField("notes", e.target.value)} rows={2} />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="gold" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {isEditing ? "Updating..." : "Adding..."}
-                </>
-              ) : isEditing ? (
-                "Update Item"
-              ) : (
-                "Add Item"
-              )}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{isEditing ? "Updating..." : "Adding..."}</> : isEditing ? "Update" : "Add Item"}
             </Button>
           </div>
         </form>
