@@ -60,7 +60,7 @@ export default function InventoryPage() {
 
   function openEdit(e: React.MouseEvent, item: InventoryItem) {
     e.stopPropagation();
-    setEditItem({ id:item.id, itemName:item.itemName, category:item.category, size:item.size, condition:item.condition, sourcingCost:item.sourcingCost, sellingPrice:item.sellingPrice||"", status:item.status, sourcingDate:item.sourcingDate?item.sourcingDate.split("T")[0]:"", soldDate:item.soldDate?item.soldDate.split("T")[0]:"", notes:item.notes||"", listingLink:item.listingLink||"", images:item.images||"", videos:item.videos||"", pieces:item.pieces||"1", saleChannel:item.saleChannel||"fleek" });
+    setEditItem({ id:item.id, itemName:item.itemName, category:item.category, size:item.size, condition:item.condition, sourcingCost:item.sourcingCost, sellingPrice:item.sellingPrice||"", status:item.status, sourcingDate:item.sourcingDate?item.sourcingDate.split("T")[0]:"", soldDate:item.soldDate?item.soldDate.split("T")[0]:"", notes:item.notes||"", listingLink:item.listingLink||"", images:item.images||"", videos:item.videos||"", pieces:item.pieces||"1", saleChannel:item.saleChannel||"fleek", showOnWebsite:item.showOnWebsite??false });
     setFormOpen(true);
   }
 
@@ -151,6 +151,7 @@ export default function InventoryPage() {
                         <ConditionBadge condition={item.condition} />
                         {pcs > 1 && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] font-semibold text-primary">{pcs} pcs</span></>}
                         {item.saleChannel === 'offline' && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] text-on-surface-3">Offline</span></>}
+                        {item.showOnWebsite && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] font-semibold text-green">Visible on website</span></>}
                         {mediaCount > 0 && <><span className="text-on-surface-3 text-[10px]">•</span><span className="text-[11px] text-on-surface-3 flex items-center gap-0.5">{vids.length > 0 && <Play className="w-3 h-3" />}<ImageIcon className="w-3 h-3" />{mediaCount}</span></>}
                       </div>
 
