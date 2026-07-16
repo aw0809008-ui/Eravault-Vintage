@@ -8,7 +8,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Loader2, Plus, X, Camera, Video, Upload } from "lucide-react";
+import { Loader2, Plus, X, Camera, Video, Upload , Globe } from "lucide-react";
 import { uploadFiles } from "@/lib/storage";
 import { formatCurrency } from "@/lib/utils";
 
@@ -40,13 +40,13 @@ export interface ItemFormData {
   id?: string; itemName: string; category: string; size: string; condition: string;
   sourcingCost: string; sellingPrice: string; status: string; sourcingDate: string;
   soldDate: string; notes: string; listingLink: string; images: string; videos: string;
-  pieces: string; saleChannel: string;
+  pieces: string; saleChannel: string; showOnWebsite: boolean;
 }
 
 const empty: ItemFormData = {
   itemName: "", category: "Tees", size: "", condition: "B", sourcingCost: "", sellingPrice: "",
   status: "Sourced", sourcingDate: new Date().toISOString().split("T")[0], soldDate: "",
-  notes: "", listingLink: "", images: "", videos: "", pieces: "1", saleChannel: "fleek",
+  notes: "", listingLink: "", images: "", videos: "", pieces: "1", saleChannel: "fleek", showOnWebsite: false,
 };
 
 function getCustomCats(): string[] { if (typeof window === "undefined") return []; try { return JSON.parse(localStorage.getItem("ev_cats") || "[]"); } catch { return []; } }
@@ -201,6 +201,25 @@ export function ItemForm({ open, onOpenChange, onSubmit, initialData }: Props) {
             <div className="space-y-1.5"><Label>Status *</Label><Select options={STATUSES} value={form.status} onChange={e => uf("status", e.target.value)} /></div>
             <div className="space-y-1.5"><Label>Sourcing Date *</Label><DatePicker value={form.sourcingDate} onChange={e => uf("sourcingDate", e.target.value)} placeholder="Select date" /></div>
             <div className="space-y-1.5"><Label>Sold Date</Label><DatePicker value={form.soldDate} onChange={e => uf("soldDate", e.target.value)} placeholder="Select date" /></div>
+          </div>
+
+          {/* Public Store */}
+          <div className="rounded-xl border border-line bg-surface-2 p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <Globe className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-[13px] font-semibold text-on-surface">List on Website</p>
+                <p className="text-[11px] text-on-surface-3">Show this item in the public EraVault store</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              aria-pressed={form.showOnWebsite}
+              onClick={() => setForm(prev => ({ ...prev, showOnWebsite: !prev.showOnWebsite }))}
+              className={`relative w-12 h-7 shrink-0 rounded-full transition-colors duration-300 cursor-pointer ${form.showOnWebsite ? "bg-green-500" : "bg-on-surface-3/30"}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform duration-300 ${form.showOnWebsite ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
           </div>
 
           {/* Photos */}

@@ -128,6 +128,7 @@ export async function addInventoryItem(item: Omit<InventoryItem, 'id' | 'created
     sold_date: item.soldDate || null, notes: item.notes || null,
     listing_link: item.listingLink || null, images: item.images || null, videos: item.videos || null,
     pieces: parseInt(item.pieces) || 1, sale_channel: item.saleChannel || 'fleek',
+    show_on_website: item.showOnWebsite ?? false,
   }).select().single();
   if (error) { console.error('Add error:', error); return null; }
   return toFrontend(data);
@@ -150,6 +151,7 @@ export async function updateInventoryItem(id: string, item: Partial<InventoryIte
   if (item.videos !== undefined) u.videos = item.videos || null;
   if (item.pieces !== undefined) u.pieces = parseInt(item.pieces) || 1;
   if (item.saleChannel !== undefined) u.sale_channel = item.saleChannel || 'fleek';
+  if (item.showOnWebsite !== undefined) u.show_on_website = item.showOnWebsite;
   const { data, error } = await supabase.from('inventory').update(u).eq('id', id).select().single();
   if (error) { console.error('Update error:', error); return null; }
   return toFrontend(data);
