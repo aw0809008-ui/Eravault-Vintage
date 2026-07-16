@@ -1,25 +1,14 @@
 {
   "name": "Eravault Vintage",
   "short_name": "Eravault",
-  "description": "Premium Vintage Clothing Inventory Management",
+  "description": "Premium Vintage Clothing Inventory",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
+  "background_color": "#000000",
+  "theme_color": "#5856d6",
   "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    }
-  ],
-  "categories": ["business", "productivity", "shopping"]
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+  ]
 }
