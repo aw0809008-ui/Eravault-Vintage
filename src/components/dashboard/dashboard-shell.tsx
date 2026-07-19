@@ -40,7 +40,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
           <Link href="/dashboard" className="flex items-center gap-3.5 group">
             <div className="relative">
               <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary via-primary to-[color:color-mix(in_srgb,var(--color-primary),#000_25%)] flex items-center justify-center shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-all duration-300 group-hover:scale-105">
-                <img src="/favicon.png" alt="E" className="w-6 h-6 rounded-sm" />
+                <span className="text-white font-serif font-bold text-sm">E</span>
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green border-2 border-sidebar-bg" />
             </div>
@@ -123,7 +123,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
           <button onClick={() => setOpen(true)} className="text-on-surface-2 cursor-pointer p-2 hover:bg-surface-2 rounded-xl transition-colors"><Menu className="w-5 h-5" /></button>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-[color:color-mix(in_srgb,var(--color-primary),#000_25%)] flex items-center justify-center shadow-sm shadow-primary/20">
-              <img src="/favicon.png" alt="" className="w-4 h-4 rounded-sm" />
+              <span className="text-white font-serif font-bold text-[10px]">E</span>
             </div>
             <span className="font-bold text-[15px] text-on-surface tracking-tight">Eravault</span>
           </div>
