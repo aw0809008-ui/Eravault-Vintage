@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, BarChart3, Settings, LogOut, Menu, X, ChevronLeft, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Package, BarChart3, Settings, LogOut, Menu, X, ChevronLeft, Sun, Moon, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/supabase";
 import { useTheme } from "@/lib/theme";
@@ -12,6 +12,7 @@ const nav = [
   { href: "/inventory", label: "Inventory", icon: Package },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/chat", label: "Chat Inbox", icon: MessageCircle },
 ];
 
 export function DashboardShell({ children, user }: { children: React.ReactNode; user: { name: string; email: string } | null }) {
