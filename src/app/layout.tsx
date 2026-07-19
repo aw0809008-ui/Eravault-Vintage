@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Premium vintage clothing inventory management",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Eravault" },
-  icons: { icon: "/favicon.svg", apple: "/icons/icon-192x192.svg" },
+  icons: { icon: "/favicon.png", apple: "/icons/icon-512x512.png" },
 };
 export const viewport: Viewport = { themeColor: "#000000", width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false };
 
