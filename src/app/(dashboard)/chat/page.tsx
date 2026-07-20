@@ -2,6 +2,25 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 
+// 🔔 Sound Alert for new messages
+function playNotifSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    // Two-tone chime: do-mi
+    osc.frequency.setValueAtTime(523, ctx.currentTime);      // C5
+    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12); // E5
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch {}
+}
+
 interface ChatSession {
   id?: number;
   chat_id: string;

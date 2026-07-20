@@ -1,170 +1,167 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Package, ShoppingBag, DollarSign, TrendingUp, Tag, Truck, ArrowUpRight, Plus, Flame, Target } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Package, TrendingUp, TrendingDown, DollarSign, ShoppingBag, ArrowRight, Plus, BarChart3, Clock, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, timeAgo, getGreeting, profitPercent } from "@/lib/utils";
-import Link from "next/link";
-import { CategoryChart } from "@/components/dashboard/category-chart";
-import { SalesChart } from "@/components/dashboard/sales-chart";
-import { getInventory, getUser, type InventoryItem } from "@/lib/supabase";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
+import { getInventory, type InventoryItem } from "@/lib/supabase";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState("");
 
-  useEffect(() => {
-    Promise.all([getInventory(), getUser()]).then(([inv, user]) => {
-      setItems(inv);
-      setUserName(user?.user_metadata?.name || user?.email?.split("@")[0] || "");
-      setLoading(false);
-    });
-  }, []);
+  const fetchData = useCallback(async () => { setItems(await getInventory()); setLoading(false); }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const sold = items.filter((i: InventoryItem) => (i.status === "Sold" || i.status === "Shipped") && i.sellingPrice);
-  const active = items.filter((i: InventoryItem) => i.status === "Active on Fleek");
-  const sourced = items.filter((i: InventoryItem) => i.status === "Sourced");
-  const rev = sold.reduce((s: number, i: InventoryItem) => s + parseFloat(i.sellingPrice || "0"), 0);
-  const cost = sold.reduce((s: number, i: InventoryItem) => s + parseFloat(i.sourcingCost || "0"), 0);
-  const totalInvested = items.reduce((s: number, i: InventoryItem) => s + parseFloat(i.sourcingCost || "0"), 0);
-  const profit = rev - cost;
-  const avgProfit = sold.length > 0 ? profit / sold.length : 0;
+  const totalItems = items.length;
+  const activeItems = items.filter(i => i.status === "Active on Fleek").length;
+  const soldItems = items.filter(i => i.status === "Sold" || i.status === "Shipped").length;
+  const sourcedItems = items.filter(i => i.status === "Sourced").length;
 
-  const cats = items.reduce((a: Record<string, number>, i: InventoryItem) => { a[i.category] = (a[i.category] || 0) + 1; return a; }, {});
+  const totalCost = items.reduce((s, i) => s + (parseFloat(i.sourcingCost) || 0) * (parseInt(i.pieces) || 1), 0);
+  const totalRevenue = items.filter(i => i.status === "Sold" || i.status === "Shipped").reduce((s, i) => s + (parseFloat(i.sellingPrice) || 0) * (parseInt(i.pieces) || 1), 0);
+  const totalProfit = totalRevenue - items.filter(i => i.status === "Sold" || i.status === "Shipped").reduce((s, i) => s + (parseFloat(i.sourcingCost) || 0) * (parseInt(i.pieces) || 1), 0);
+  const portfolioValue = items.filter(i => i.status !== "Sold" && i.status !== "Shipped").reduce((s, i) => s + (parseFloat(i.sellingPrice || i.sourcingCost) || 0) * (parseInt(i.pieces) || 1), 0);
+
+  const recentItems = [...items].slice(0, 6);
+  const topCategories = Object.entries(items.reduce((acc, i) => { acc[i.category] = (acc[i.category] || 0) + 1; return acc; }, {} as Record<string, number>)).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
   const now = new Date();
-  const monthly = Array.from({ length: 6 }, (_, idx) => {
-    const n = 5 - idx; const d = new Date(now.getFullYear(), now.getMonth() - n, 1); const me = new Date(now.getFullYear(), now.getMonth() - n + 1, 0);
-    const mi = sold.filter((x: InventoryItem) => { const sd = x.soldDate ? new Date(x.soldDate) : null; return sd && sd >= d && sd <= me; });
-    return { month: d.toLocaleString("en-US", { month: "short" }), revenue: mi.reduce((s: number, x: InventoryItem) => s + parseFloat(x.sellingPrice || "0"), 0), items: mi.length };
-  });
-  const recent = [...items].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 6);
+  const thisMonth = items.filter(i => { const d = new Date(i.sourcingDate); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+  const soldThisMonth = items.filter(i => i.soldDate && ["Sold","Shipped"].includes(i.status)).filter(i => { const d = new Date(i.soldDate!); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
 
-  // Status distribution for bar
-  const statusCounts = { sourced: sourced.length, active: active.length, sold: sold.length };
-  const total = items.length || 1;
+  if (loading) return (
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">{[1,2,3,4].map(i => <Card key={i}><CardContent className="p-4 sm:p-5"><Skeleton className="h-10 w-10 rounded-xl mb-3" /><Skeleton className="h-4 w-20 mb-2" /><Skeleton className="h-7 w-28" /></CardContent></Card>)}</div>
+      <div className="grid lg:grid-cols-2 gap-4">{[1,2].map(i => <Card key={i}><CardContent className="p-5"><Skeleton className="h-5 w-32 mb-4" /><div className="space-y-3">{[1,2,3].map(j => <Skeleton key={j} className="h-16 w-full rounded-xl" />)}</div></CardContent></Card>)}</div>
+    </div>
+  );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Greeting */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      {/* ── GREETING ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          {loading ? <Skeleton className="h-7 w-48 mb-1.5" /> : (
-            <h1 className="text-[24px] font-bold text-on-surface tracking-tight">
-              {getGreeting()}{userName ? `, ${userName}` : ""} 👋
-            </h1>
-          )}
-          <p className="text-[13px] text-on-surface-3 mt-0.5">
-            {loading ? "" : items.length === 0 ? "Start by adding your first item" : `${items.length} items · ${active.length} active · ${sold.length} sold`}
-          </p>
+          <h1 className="text-[22px] sm:text-[28px] font-bold text-on-surface tracking-tight flex items-center gap-2">
+            Dashboard <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          </h1>
+          <p className="text-[12px] sm:text-[13px] text-on-surface-3 mt-0.5">Your vintage empire at a glance</p>
         </div>
-        <Link href="/inventory?add=true"><Button><Plus className="w-4 h-4" />Add Item</Button></Link>
+        <Button onClick={() => router.push("/inventory?add=true")} className="shrink-0"><Plus className="w-4 h-4" /><span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span></Button>
       </div>
 
-      {/* Status Distribution Bar */}
-      {!loading && items.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex h-2.5 rounded-full overflow-hidden bg-surface-2">
-            {statusCounts.sourced > 0 && <div className="bg-blue h-full transition-all" style={{ width: `${(statusCounts.sourced / total) * 100}%` }} />}
-            {statusCounts.active > 0 && <div className="bg-green h-full transition-all" style={{ width: `${(statusCounts.active / total) * 100}%` }} />}
-            {statusCounts.sold > 0 && <div className="bg-orange h-full transition-all" style={{ width: `${(statusCounts.sold / total) * 100}%` }} />}
-          </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue" /><span className="text-on-surface-3">Sourced {statusCounts.sourced}</span></span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green" /><span className="text-on-surface-3">Active {statusCounts.active}</span></span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-orange" /><span className="text-on-surface-3">Sold {statusCounts.sold}</span></span>
-          </div>
-        </div>
-      )}
-
-      {/* Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {[
-          { l: "Total Items", v: items.length, i: Package, f: false, c: "from-blue-500 to-indigo-600" },
-          { l: "Active Listings", v: active.length, i: Tag, f: false, c: "from-emerald-500 to-teal-600" },
-          { l: "Total Sold", v: sold.length, i: ShoppingBag, f: false, c: "from-violet-500 to-purple-600" },
-          { l: "Invested", v: totalInvested, i: DollarSign, f: true, c: "from-rose-500 to-pink-600" },
-          { l: "Revenue", v: rev, i: Truck, f: true, c: "from-cyan-500 to-blue-600" },
-          { l: "Net Profit", v: profit, i: TrendingUp, f: true, c: "from-green-500 to-emerald-600" },
-        ].map(m => (
-          <Card key={m.l}>
-            <CardContent className="p-4">
-              {loading ? <div className="space-y-3"><Skeleton className="h-8 w-8 rounded-xl" /><Skeleton className="h-6 w-16" /><Skeleton className="h-3 w-12" /></div> : <>
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${m.c} flex items-center justify-center mb-3 shadow-sm`}><m.i className="w-4 h-4 text-white" /></div>
-                <p className={`text-[20px] font-bold tracking-tight ${m.f && m.v < 0 ? 'text-red' : 'text-on-surface'}`}>{m.f ? formatCurrency(m.v) : m.v}</p>
-                <p className="text-[11px] text-on-surface-3 mt-0.5 font-medium">{m.l}</p>
-              </>}
+          { label: "Total Items", value: totalItems, sub: sourcedItems + " sourced", icon: Package, color: "text-primary", bg: "bg-primary/10" },
+          { label: "Portfolio", value: formatCurrency(portfolioValue), sub: activeItems + " active", icon: TrendingUp, color: "text-green", bg: "bg-green/10" },
+          { label: "Revenue", value: formatCurrency(totalRevenue), sub: soldItems + " sold", icon: DollarSign, color: "text-blue", bg: "bg-blue/10" },
+          { label: "Profit", value: formatCurrency(totalProfit), sub: totalProfit >= 0 ? "Positive ↑" : "Negative ↓", icon: totalProfit >= 0 ? TrendingUp : TrendingDown, color: totalProfit >= 0 ? "text-green" : "text-red", bg: totalProfit >= 0 ? "bg-green/10" : "bg-red/10" },
+        ].map((s, i) => (
+          <Card key={i}>
+            <CardContent className="p-3 sm:p-5">
+              <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl ${s.bg} flex items-center justify-center mb-2.5 sm:mb-3 ${s.color}`}>
+                <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-on-surface-3 font-medium">{s.label}</p>
+              <p className="text-[16px] sm:text-[22px] font-bold text-on-surface leading-tight mt-0.5 truncate">{s.value}</p>
+              <p className={`text-[10px] sm:text-[11px] mt-1 ${s.color} font-medium`}>{s.sub}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Highlights Row */}
-      {!loading && sold.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/0 border-primary/10">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Flame className="w-5 h-5 text-primary" /></div>
-              <div><p className="text-[20px] font-bold text-on-surface">{formatCurrency(avgProfit)}</p><p className="text-[11px] text-on-surface-3">Avg Profit/Item</p></div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green/5 to-green/0 border-green/10">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green/10 flex items-center justify-center shrink-0"><Target className="w-5 h-5 text-green" /></div>
-              <div><p className="text-[20px] font-bold text-on-surface">{rev > 0 ? Math.round((profit / rev) * 100) : 0}%</p><p className="text-[11px] text-on-surface-3">Profit Margin</p></div>
+      {/* ── THIS MONTH STRIP ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+        <Card><CardContent className="p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><ShoppingBag className="w-4 h-4 text-primary" /></div>
+          <div><p className="text-[10px] text-on-surface-3">Sourced this month</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{thisMonth.length}</p></div>
+        </CardContent></Card>
+        <Card><CardContent className="p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-green/10 flex items-center justify-center shrink-0"><Star className="w-4 h-4 text-green" /></div>
+          <div><p className="text-[10px] text-on-surface-3">Sold this month</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{soldThisMonth.length}</p></div>
+        </CardContent></Card>
+        <Card className="hidden sm:block"><CardContent className="p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue/10 flex items-center justify-center shrink-0"><BarChart3 className="w-4 h-4 text-blue" /></div>
+          <div><p className="text-[10px] text-on-surface-3">Total invested</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{formatCurrency(totalCost)}</p></div>
+        </CardContent></Card>
+      </div>
+
+      <div className="grid lg:grid-cols-5 gap-4">
+        {/* ── RECENT ITEMS ── */}
+        <div className="lg:col-span-3">
+          <Card>
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[14px] sm:text-[16px] font-bold text-on-surface flex items-center gap-2"><Clock className="w-4 h-4 text-on-surface-3" /> Recent Items</h3>
+                <button onClick={() => router.push("/inventory")} className="text-[12px] text-primary font-semibold flex items-center gap-1 hover:underline cursor-pointer">View all <ArrowRight className="w-3 h-3" /></button>
+              </div>
+              {recentItems.length === 0 ? (
+                <div className="text-center py-10 text-on-surface-3"><Package className="w-8 h-8 mx-auto mb-2 opacity-30" /><p className="text-[13px]">No items yet</p></div>
+              ) : (
+                <div className="space-y-2">
+                  {recentItems.map(item => {
+                    const imgs = item.images ? item.images.split(',').filter(Boolean) : [];
+                    const pcs = parseInt(item.pieces) || 1;
+                    const price = (parseFloat(item.sellingPrice || item.sourcingCost) || 0) * pcs;
+                    return (
+                      <div key={item.id} onClick={() => router.push("/inventory")} className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-surface-2 transition-colors cursor-pointer group">
+                        {imgs[0] ? (
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border border-line shrink-0"><img src={imgs[0]} alt="" className="w-full h-full object-cover" /></div>
+                        ) : (
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-surface-2 flex items-center justify-center shrink-0"><Package className="w-4 h-4 text-on-surface-3" /></div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] sm:text-[13px] font-semibold text-on-surface truncate group-hover:text-primary transition-colors">{item.itemName}</p>
+                          <p className="text-[10px] sm:text-[11px] text-on-surface-3">{item.category} · {item.size}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-[12px] sm:text-[13px] font-bold text-on-surface">{formatCurrency(price)}</p>
+                          <div className="scale-[0.85] origin-right"><StatusBadge status={item.status} /></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card><CardHeader><CardTitle>Revenue Trend</CardTitle></CardHeader><CardContent>{loading ? <Skeleton className="h-48 w-full rounded-xl" /> : <SalesChart data={monthly} />}</CardContent></Card>
-        <Card><CardHeader><CardTitle>By Category</CardTitle></CardHeader><CardContent>{loading ? <Skeleton className="h-48 w-full rounded-xl" /> : <CategoryChart data={Object.entries(cats).map(([n, v]) => ({ name: n, value: v as number }))} />}</CardContent></Card>
+        {/* ── TOP CATEGORIES ── */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="p-4 sm:p-5">
+              <h3 className="text-[14px] sm:text-[16px] font-bold text-on-surface mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-on-surface-3" /> Categories</h3>
+              {topCategories.length === 0 ? (
+                <div className="text-center py-10 text-on-surface-3"><p className="text-[13px]">No data yet</p></div>
+              ) : (
+                <div className="space-y-3">
+                  {topCategories.map(([cat, count], i) => {
+                    const pct = Math.round((count / totalItems) * 100);
+                    const colors = ["bg-primary", "bg-green", "bg-blue", "bg-orange", "bg-red"];
+                    return (
+                      <div key={cat}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[12px] sm:text-[13px] font-medium text-on-surface">{cat}</span>
+                          <span className="text-[11px] text-on-surface-3">{count} items · {pct}%</span>
+                        </div>
+                        <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${colors[i % colors.length]} transition-all duration-700`} style={{ width: pct + "%" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent Activity</CardTitle>
-          <Link href="/inventory"><Button variant="ghost" size="sm" className="text-primary">View all<ArrowUpRight className="w-3.5 h-3.5 ml-1" /></Button></Link>
-        </CardHeader>
-        <CardContent>
-          {loading ? <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="flex items-center gap-3"><Skeleton className="h-11 w-11 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-40" /><Skeleton className="h-3 w-24" /></div></div>)}</div>
-            : recent.length === 0 ? (
-              <div className="text-center py-14">
-                <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center mx-auto mb-4"><Package className="w-7 h-7 text-on-surface-3" /></div>
-                <h3 className="text-[15px] font-semibold text-on-surface">No items yet</h3>
-                <p className="text-[13px] text-on-surface-3 mt-1">Add your first vintage piece to get started</p>
-                <Link href="/inventory?add=true"><Button className="mt-4" size="sm"><Plus className="w-3.5 h-3.5" />Add Item</Button></Link>
-              </div>
-            ) : (
-              <div className="space-y-1">{recent.map(item => {
-                const pct = profitPercent(item.sourcingCost, item.sellingPrice);
-                return (
-                  <Link key={item.id} href="/inventory" className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-2 transition-all group">
-                    {item.images ? (
-                      <div className="w-11 h-11 rounded-xl overflow-hidden border border-line shrink-0"><img src={item.images.split(',')[0]} alt="" className="w-full h-full object-cover" /></div>
-                    ) : (
-                      <div className="w-11 h-11 rounded-xl bg-primary-soft flex items-center justify-center shrink-0"><Package className="w-5 h-5 text-primary" /></div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-on-surface truncate group-hover:text-primary transition-colors">{item.itemName}</p>
-                      <p className="text-[11px] text-on-surface-3 mt-0.5">{item.category} · {timeAgo(item.updatedAt)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[13px] font-bold text-on-surface">{item.sellingPrice ? formatCurrency(item.sellingPrice) : formatCurrency(item.sourcingCost)}</p>
-                      {pct !== null && <p className={`text-[11px] font-semibold ${pct >= 0 ? 'text-green' : 'text-red'}`}>{pct >= 0 ? '+' : ''}{pct}%</p>}
-                      {pct === null && <StatusBadge status={item.status} />}
-                    </div>
-                  </Link>
-                );
-              })}</div>
-            )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
