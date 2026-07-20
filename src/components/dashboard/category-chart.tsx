@@ -1,7 +1,7 @@
 "use client";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { useTheme } from "@/lib/theme";
-const COLORS = ["#f59e0b","#22c55e","#3b82f6","#ef4444","#8b5cf6","#ec4899","#06b6d4"];
+const COLORS = ["#c49a62","#22c55e","#3b82f6","#ef4444","#8b5cf6","#ec4899","#06b6d4"];
 export function CategoryChart({ data }: { data: { name: string; value: number }[] }) {
   const { theme } = useTheme(); const d = theme === "dark";
   if (data.length === 0) return <div className="h-52 flex items-center justify-center text-sm text-on-surface-3 font-semibold">No data yet</div>;

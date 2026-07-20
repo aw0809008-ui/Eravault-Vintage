@@ -7,8 +7,8 @@ export function SalesChart({ data }: { data: { month: string; revenue: number; i
   return <div className="h-52"><ResponsiveContainer width="100%" height="100%"><BarChart data={data} margin={{top:5,right:5,left:-20,bottom:5}}>
     <defs>
       <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor={d ? "#f59e0b" : "#c2873b"} />
-        <stop offset="100%" stopColor={d ? "#ea580c" : "#9a6b2f"} />
+        <stop offset="0%" stopColor={d ? "#c49a62" : "#b8894a"} />
+        <stop offset="100%" stopColor={d ? "#885935" : "#6f4930"} />
       </linearGradient>
     </defs>
     <CartesianGrid strokeDasharray="3 3" stroke={d?"#27272a":"#e8e0d4"} vertical={false} />

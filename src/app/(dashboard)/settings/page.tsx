@@ -58,7 +58,7 @@ export default function SettingsPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-2xl">⚙️</span>
-            <span className="text-[11px] font-bold text-amber-400/60 uppercase tracking-[0.2em]">Settings</span>
+            <span className="text-[11px] font-bold text-[#c49a62]/60 uppercase tracking-[0.2em]">Settings</span>
           </div>
           <h1 className="text-[26px] sm:text-[34px] font-black text-white tracking-tight leading-[1.1]">Account & Data</h1>
           <p className="text-[13px] text-white/40 mt-2">Manage your account, data exports, and preferences.</p>
@@ -74,7 +74,7 @@ export default function SettingsPage() {
                 <Shield className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-[15px] font-black text-on-surface tracking-tight flex items-center gap-2">Admin Panel <Crown className="w-3.5 h-3.5 text-amber-400" /></h3>
+                <h3 className="text-[15px] font-black text-on-surface tracking-tight flex items-center gap-2">Admin Panel <Crown className="w-3.5 h-3.5 text-[#c49a62]" /></h3>
                 <p className="text-[11px] text-on-surface-3">Manage user access requests</p>
               </div>
             </div>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
       <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "150ms" }}>
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
               <User className="w-5 h-5 text-white" />
             </div>
             <div>

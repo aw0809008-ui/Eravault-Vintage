@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
   const catProfits: Record<string, { revenue: number; cost: number; count: number }> = {};
   sold.forEach((i: InventoryItem) => { if (!catProfits[i.category]) catProfits[i.category] = { revenue: 0, cost: 0, count: 0 }; catProfits[i.category].revenue += parseFloat(i.sellingPrice || "0"); catProfits[i.category].cost += parseFloat(i.sourcingCost || "0"); catProfits[i.category].count++; });
 
-  const condGradients: Record<string, string> = { A: "from-emerald-400 to-teal-500", B: "from-blue-400 to-indigo-500", C: "from-orange-400 to-red-500", AB: "from-teal-400 to-cyan-500", BC: "from-amber-400 to-orange-500", ABC: "from-pink-400 to-rose-500" };
+  const condGradients: Record<string, string> = { A: "from-emerald-400 to-teal-500", B: "from-blue-400 to-indigo-500", C: "from-orange-400 to-red-500", AB: "from-teal-400 to-cyan-500", BC: "from-[#d1b385] to-[#a4713e]", ABC: "from-pink-400 to-rose-500" };
   const condDots: Record<string, string> = { A: "bg-emerald-400", B: "bg-blue-400", C: "bg-orange-400", AB: "bg-teal-400", BC: "bg-amber-400", ABC: "bg-pink-400" };
 
   return (
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
       {!loading && bestItem && (
         <div className="relative rounded-2xl border border-amber-500/20 overflow-hidden animate-fade-in-up" style={{ animationDelay: "250ms", background: "linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(217,119,6,0.02) 100%)" }}>
           <div className="p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative z-10">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center shrink-0 shadow-xl shadow-orange-500/25 animate-float">
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shrink-0 shadow-xl shadow-[#c49a62]/25 animate-float">
               <Trophy className="w-8 h-8 text-white drop-shadow-sm" />
             </div>
             <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export default function AnalyticsPage() {
         <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "300ms" }}>
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
                 <BarChart3 className="w-[18px] h-[18px] text-white" />
               </div>
               <div>
@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
         <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "450ms" }}>
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
                 <Trophy className="w-[18px] h-[18px] text-white" />
               </div>
               <div>

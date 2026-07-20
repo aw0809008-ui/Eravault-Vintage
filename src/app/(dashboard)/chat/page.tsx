@@ -113,7 +113,7 @@ export default function ChatPage() {
       <div className={`${pick ? "hidden md:flex" : "flex"} flex-col w-full md:w-[320px] lg:w-[340px] border-r border-line/60 shrink-0 bg-surface/95 backdrop-blur-sm`}>
         {/* Header */}
         <div className="px-5 py-4 flex items-center gap-3 shrink-0 border-b border-line/40">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-500 to-red-500 flex items-center justify-center shadow-lg shadow-rose-500/20">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#6f4930] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
             <span className="text-white text-sm">💬</span>
           </div>
           <div className="flex-1">
@@ -121,7 +121,7 @@ export default function ChatPage() {
             <p className="text-[10px] text-on-surface-3 flex items-center gap-1">🔒 End-to-end encrypted</p>
           </div>
           {unread > 0 && (
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-red-400 to-red-600 text-[10px] font-black text-white flex items-center justify-center animate-pulse shadow-lg shadow-red-500/30">{unread}</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c49a62] to-[#885935] text-[10px] font-black text-white flex items-center justify-center animate-pulse shadow-lg shadow-[#c49a62]/30">{unread}</span>
           )}
           <button onClick={load} title="Refresh" className="w-9 h-9 rounded-xl bg-surface-2/60 hover:bg-surface-2 flex items-center justify-center text-on-surface-3 hover:text-on-surface transition-all cursor-pointer active:scale-95">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
@@ -145,7 +145,7 @@ export default function ChatPage() {
               return (
                 <button key={c.chat_id} onClick={() => { setPick(c.chat_id); setMsgs([]); }}
                   className={`w-full flex items-center gap-3 px-4 py-4 text-left transition-all cursor-pointer border-l-[3px] ${active ? "bg-primary/[0.06] border-primary" : "border-transparent hover:bg-surface-2/60"}`}>
-                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-[13px] shrink-0 transition-all ${hasU ? "bg-gradient-to-br from-pink-400 via-rose-500 to-red-500 text-white shadow-md shadow-rose-500/20 ring-2 ring-rose-500/20" : "bg-surface-2 text-on-surface-3"}`}>
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-[13px] shrink-0 transition-all ${hasU ? "bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#6f4930] text-white shadow-md shadow-[#c49a62]/20 ring-2 ring-[#c49a62]/20" : "bg-surface-2 text-on-surface-3"}`}>
                     {c.buyer_name?.charAt(0).toUpperCase() || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -155,7 +155,7 @@ export default function ChatPage() {
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-0.5">
                       <span className={`text-[11px] truncate ${hasU ? "text-on-surface-2" : "text-on-surface-3"}`}>{c.last_message || "—"}</span>
-                      {hasU && <span className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-orange-600 text-[9px] font-black text-white flex items-center justify-center shrink-0">{c.unread_admin}</span>}
+                      {hasU && <span className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-[#885935] text-[9px] font-black text-white flex items-center justify-center shrink-0">{c.unread_admin}</span>}
                     </div>
                     <span className="text-[9px] text-on-surface-3/40 mt-0.5 block truncate">{c.buyer_email}</span>
                   </div>
@@ -174,7 +174,7 @@ export default function ChatPage() {
             <button onClick={() => setPick(null)} className="md:hidden w-9 h-9 rounded-xl bg-surface-2 hover:bg-surface-3 flex items-center justify-center cursor-pointer transition-all active:scale-95">
               <svg className="w-5 h-5 text-on-surface-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-500 to-red-500 flex items-center justify-center font-black text-[13px] text-white shrink-0 shadow-md shadow-rose-500/15">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#6f4930] flex items-center justify-center font-black text-[13px] text-white shrink-0 shadow-md shadow-[#c49a62]/15">
               {cur?.buyer_name?.charAt(0).toUpperCase() || "?"}
             </div>
             <div className="min-w-0 flex-1">
@@ -198,7 +198,7 @@ export default function ChatPage() {
               return (
                 <div key={m.id ?? i} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-in`} style={{ animationDelay: `${Math.min(i * 15, 200)}ms` }}>
                   <div className={`max-w-[80%] sm:max-w-[65%] px-4 py-3 text-[13px] leading-relaxed ${mine
-                    ? "bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 text-white rounded-2xl rounded-br-sm shadow-lg shadow-orange-500/15"
+                    ? "bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] text-white rounded-2xl rounded-br-sm shadow-lg shadow-[#c49a62]/15"
                     : "bg-surface text-on-surface border border-line/50 rounded-2xl rounded-bl-sm shadow-sm"}`}>
                     <p className="break-words whitespace-pre-wrap">{m.message}</p>
                     <p className={`text-[9px] mt-1.5 ${mine ? "text-white/50" : "text-on-surface-3"}`}>
@@ -219,7 +219,7 @@ export default function ChatPage() {
                 placeholder="Type a reply…"
                 className="flex-1 min-w-0 px-4 py-3 rounded-xl bg-surface-2/60 border border-line/40 text-[13px] text-on-surface placeholder-on-surface-3 outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all" />
               <button onClick={send} disabled={!text.trim() || busy}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-[13px] font-black disabled:opacity-30 hover:shadow-xl hover:shadow-orange-500/25 transition-all shrink-0 flex items-center gap-2 cursor-pointer active:scale-[0.97]">
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#d1b385] via-[#c49a62] to-[#885935] text-white text-[13px] font-black disabled:opacity-30 hover:shadow-xl hover:shadow-[#c49a62]/25 transition-all shrink-0 flex items-center gap-2 cursor-pointer active:scale-[0.97]">
                 {busy ? <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                   : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" /></svg>}
                 Send
