@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Package, TrendingUp, TrendingDown, DollarSign, ShoppingBag, ArrowRight, Plus, BarChart3, Clock, Star, Zap } from "lucide-react";
+import { Package, TrendingUp, TrendingDown, DollarSign, ShoppingBag, ArrowRight, Plus, BarChart3, Clock, Star, ArrowUpRight, Layers, Wallet, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
@@ -34,132 +33,255 @@ export default function DashboardPage() {
   const thisMonth = items.filter(i => { const d = new Date(i.sourcingDate); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
   const soldThisMonth = items.filter(i => i.soldDate && ["Sold","Shipped"].includes(i.status)).filter(i => { const d = new Date(i.soldDate!); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
 
+  const catBarColors = ["from-amber-400 to-orange-500", "from-emerald-400 to-teal-500", "from-blue-400 to-indigo-500", "from-violet-400 to-purple-500", "from-rose-400 to-pink-500"];
+  const catDotColors = ["bg-amber-400", "bg-emerald-400", "bg-blue-400", "bg-violet-400", "bg-rose-400"];
+
   if (loading) return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">{[1,2,3,4].map(i => <Card key={i}><CardContent className="p-4 sm:p-5"><Skeleton className="h-10 w-10 rounded-xl mb-3" /><Skeleton className="h-4 w-20 mb-2" /><Skeleton className="h-7 w-28" /></CardContent></Card>)}</div>
-      <div className="grid lg:grid-cols-2 gap-4">{[1,2].map(i => <Card key={i}><CardContent className="p-5"><Skeleton className="h-5 w-32 mb-4" /><div className="space-y-3">{[1,2,3].map(j => <Skeleton key={j} className="h-16 w-full rounded-xl" />)}</div></CardContent></Card>)}</div>
+    <div className="space-y-6">
+      {/* Hero skeleton */}
+      <div className="rounded-3xl p-6 sm:p-8 animate-shimmer h-[120px]" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {[1,2,3,4].map(i => <div key={i} className="rounded-2xl border border-line/60 bg-surface/80 p-5"><Skeleton className="h-10 w-10 rounded-xl mb-3" /><Skeleton className="h-4 w-20 mb-2" /><Skeleton className="h-7 w-28" /></div>)}
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        {[1,2].map(i => <div key={i} className="rounded-2xl border border-line/60 bg-surface/80 p-5"><Skeleton className="h-5 w-32 mb-4" /><div className="space-y-3">{[1,2,3].map(j => <Skeleton key={j} className="h-16 w-full rounded-xl" />)}</div></div>)}
+      </div>
     </div>
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      {/* ── GREETING ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-[22px] sm:text-[28px] font-bold text-on-surface tracking-tight flex items-center gap-2">
-            Dashboard <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-          </h1>
-          <p className="text-[12px] sm:text-[13px] text-on-surface-3 mt-0.5">Your vintage empire at a glance</p>
+    <div className="space-y-6 sm:space-y-8">
+      {/* ═══════ HERO BANNER ═══════ */}
+      <div
+        className="relative rounded-3xl overflow-hidden p-6 sm:p-8 animate-fade-in"
+        style={{
+          background: "linear-gradient(135deg, #1a1612 0%, #2d2318 40%, #3d2e1c 70%, #1a1612 100%)",
+        }}
+      >
+        {/* Decorative circles */}
+        <div className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/5 blur-2xl" />
+        <div className="absolute bottom-[-30px] left-[-30px] w-[150px] h-[150px] rounded-full bg-gradient-to-br from-amber-400/10 to-transparent blur-2xl" />
+
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-amber-400/90 text-2xl">✦</span>
+              <span className="text-[11px] font-bold text-amber-400/60 uppercase tracking-[0.2em]">Dashboard</span>
+            </div>
+            <h1 className="text-[26px] sm:text-[34px] font-black text-white tracking-tight leading-[1.1]">
+              Your Vintage Empire
+            </h1>
+            <p className="text-[13px] text-white/40 mt-2 max-w-sm">
+              Track your sourcing, sales, and profits — all in one beautiful place.
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push("/inventory?add=true")}
+            className="shrink-0 bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 border-0 text-white font-bold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] transition-all duration-300"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Item</span>
+            <span className="sm:hidden">Add</span>
+          </Button>
         </div>
-        <Button onClick={() => router.push("/inventory?add=true")} className="shrink-0"><Plus className="w-4 h-4" /><span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span></Button>
       </div>
 
-      {/* ── STAT CARDS ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      {/* ═══════ STAT CARDS ═══════ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
-          { label: "Total Items", value: totalItems, sub: sourcedItems + " sourced", icon: Package, color: "text-primary", bg: "bg-primary/10" },
-          { label: "Portfolio", value: formatCurrency(portfolioValue), sub: activeItems + " active", icon: TrendingUp, color: "text-green", bg: "bg-green/10" },
-          { label: "Revenue", value: formatCurrency(totalRevenue), sub: soldItems + " sold", icon: DollarSign, color: "text-blue", bg: "bg-blue/10" },
-          { label: "Profit", value: formatCurrency(totalProfit), sub: totalProfit >= 0 ? "Positive ↑" : "Negative ↓", icon: totalProfit >= 0 ? TrendingUp : TrendingDown, color: totalProfit >= 0 ? "text-green" : "text-red", bg: totalProfit >= 0 ? "bg-green/10" : "bg-red/10" },
+          { label: "Total Items", value: String(totalItems), sub: sourcedItems + " sourced", icon: Package, gradient: "from-amber-400 via-orange-500 to-red-500", shadow: "shadow-orange-500/20", bgGlow: "bg-gradient-to-br from-amber-500/8 to-orange-500/3" },
+          { label: "Portfolio", value: formatCurrency(portfolioValue), sub: activeItems + " active", icon: Wallet, gradient: "from-emerald-400 via-green-500 to-teal-600", shadow: "shadow-emerald-500/20", bgGlow: "bg-gradient-to-br from-emerald-500/8 to-teal-500/3" },
+          { label: "Revenue", value: formatCurrency(totalRevenue), sub: soldItems + " sold", icon: DollarSign, gradient: "from-blue-400 via-indigo-500 to-purple-600", shadow: "shadow-indigo-500/20", bgGlow: "bg-gradient-to-br from-blue-500/8 to-indigo-500/3" },
+          { label: "Profit", value: formatCurrency(totalProfit), sub: totalProfit >= 0 ? "Positive ↑" : "Negative ↓", icon: totalProfit >= 0 ? TrendingUp : TrendingDown, gradient: totalProfit >= 0 ? "from-emerald-400 via-green-500 to-teal-600" : "from-red-400 via-rose-500 to-red-600", shadow: totalProfit >= 0 ? "shadow-emerald-500/20" : "shadow-red-500/20", bgGlow: totalProfit >= 0 ? "bg-gradient-to-br from-emerald-500/8 to-green-500/3" : "bg-gradient-to-br from-red-500/8 to-rose-500/3" },
         ].map((s, i) => (
-          <Card key={i}>
-            <CardContent className="p-3 sm:p-5">
-              <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl ${s.bg} flex items-center justify-center mb-2.5 sm:mb-3 ${s.color}`}>
-                <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+          <div
+            key={i}
+            className="relative rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden group hover:border-line transition-all duration-300 hover:-translate-y-1 hover:shadow-xl animate-fade-in-up"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            <div className="p-4 sm:p-5 relative z-10">
+              <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-3 shadow-lg ${s.shadow} group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                <s.icon className="w-5 h-5 text-white drop-shadow-sm" />
               </div>
-              <p className="text-[10px] sm:text-[11px] text-on-surface-3 font-medium">{s.label}</p>
-              <p className="text-[16px] sm:text-[22px] font-bold text-on-surface leading-tight mt-0.5 truncate">{s.value}</p>
-              <p className={`text-[10px] sm:text-[11px] mt-1 ${s.color} font-medium`}>{s.sub}</p>
-            </CardContent>
-          </Card>
+              <p className="text-[10px] sm:text-[11px] text-on-surface-3 font-bold uppercase tracking-[0.1em]">
+                {s.label}
+              </p>
+              <p className="text-[20px] sm:text-[26px] font-black text-on-surface leading-none mt-1.5 tracking-tight animate-counter-up">
+                {s.value}
+              </p>
+              <div className="flex items-center gap-1 mt-2">
+                <ArrowUpRight className="w-3 h-3 text-on-surface-3" />
+                <span className="text-[10px] sm:text-[11px] text-on-surface-3 font-semibold">{s.sub}</span>
+              </div>
+            </div>
+            {/* Background glow */}
+            <div className={`absolute inset-0 ${s.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+          </div>
         ))}
       </div>
 
-      {/* ── THIS MONTH STRIP ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-        <Card><CardContent className="p-3 sm:p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><ShoppingBag className="w-4 h-4 text-primary" /></div>
-          <div><p className="text-[10px] text-on-surface-3">Sourced this month</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{thisMonth.length}</p></div>
-        </CardContent></Card>
-        <Card><CardContent className="p-3 sm:p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-green/10 flex items-center justify-center shrink-0"><Star className="w-4 h-4 text-green" /></div>
-          <div><p className="text-[10px] text-on-surface-3">Sold this month</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{soldThisMonth.length}</p></div>
-        </CardContent></Card>
-        <Card className="hidden sm:block"><CardContent className="p-3 sm:p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue/10 flex items-center justify-center shrink-0"><BarChart3 className="w-4 h-4 text-blue" /></div>
-          <div><p className="text-[10px] text-on-surface-3">Total invested</p><p className="text-[15px] sm:text-[17px] font-bold text-on-surface">{formatCurrency(totalCost)}</p></div>
-        </CardContent></Card>
+      {/* ═══════ THIS MONTH STRIP ═══════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        {[
+          { label: "Sourced this month", value: thisMonth.length, icon: ShoppingBag, gradient: "from-amber-400 to-orange-500", delay: "0ms" },
+          { label: "Sold this month", value: soldThisMonth.length, icon: Star, gradient: "from-emerald-400 to-teal-500", delay: "60ms" },
+          { label: "Total invested", value: formatCurrency(totalCost), icon: BarChart3, gradient: "from-blue-400 to-indigo-500", delay: "120ms", hideOnMobile: true },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className={`rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm p-4 sm:p-5 flex items-center gap-4 hover:border-line hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 animate-fade-in-up ${item.hideOnMobile ? "hidden sm:flex" : ""}`}
+            style={{ animationDelay: item.delay }}
+          >
+            <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shrink-0 shadow-lg`}>
+              <item.icon className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] text-on-surface-3 font-bold uppercase tracking-wider">{item.label}</p>
+              <p className="text-[20px] sm:text-[22px] font-black text-on-surface tracking-tight leading-none mt-1">{item.value}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-4">
+      {/* ═══════ RECENT + CATEGORIES ═══════ */}
+      <div className="grid lg:grid-cols-5 gap-4 sm:gap-5">
         {/* ── RECENT ITEMS ── */}
-        <div className="lg:col-span-3">
-          <Card>
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[14px] sm:text-[16px] font-bold text-on-surface flex items-center gap-2"><Clock className="w-4 h-4 text-on-surface-3" /> Recent Items</h3>
-                <button onClick={() => router.push("/inventory")} className="text-[12px] text-primary font-semibold flex items-center gap-1 hover:underline cursor-pointer">View all <ArrowRight className="w-3 h-3" /></button>
+        <div className="lg:col-span-3 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+          <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden">
+            <div className="p-5 sm:p-6 pb-0">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <Clock className="w-[18px] h-[18px] text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-[15px] sm:text-[17px] font-black text-on-surface tracking-tight">
+                      Recent Items
+                    </h3>
+                    <p className="text-[10px] text-on-surface-3">Latest inventory additions</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => router.push("/inventory")}
+                  className="text-[12px] text-primary font-bold flex items-center gap-1.5 hover:gap-2.5 transition-all cursor-pointer group"
+                >
+                  View all
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
               </div>
+            </div>
+
+            <div className="px-5 sm:px-6 pb-5 sm:pb-6">
               {recentItems.length === 0 ? (
-                <div className="text-center py-10 text-on-surface-3"><Package className="w-8 h-8 mx-auto mb-2 opacity-30" /><p className="text-[13px]">No items yet</p></div>
+                <div className="text-center py-14 text-on-surface-3">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-3xl bg-surface-2 flex items-center justify-center">
+                    <Package className="w-7 h-7 text-on-surface-3/30" />
+                  </div>
+                  <p className="text-[14px] font-bold text-on-surface">No items yet</p>
+                  <p className="text-[12px] mt-1 text-on-surface-3">Add your first vintage piece to get started</p>
+                </div>
               ) : (
-                <div className="space-y-2">
-                  {recentItems.map(item => {
-                    const imgs = item.images ? item.images.split(',').filter(Boolean) : [];
+                <div className="space-y-1">
+                  {recentItems.map((item, idx) => {
+                    const imgs = item.images ? item.images.split(",").filter(Boolean) : [];
                     const pcs = parseInt(item.pieces) || 1;
                     const price = (parseFloat(item.sellingPrice || item.sourcingCost) || 0) * pcs;
                     return (
-                      <div key={item.id} onClick={() => router.push("/inventory")} className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-surface-2 transition-colors cursor-pointer group">
+                      <div
+                        key={item.id}
+                        onClick={() => router.push("/inventory")}
+                        className="flex items-center gap-3 p-3 sm:p-3.5 rounded-xl hover:bg-surface-2/80 transition-all cursor-pointer group animate-fade-in"
+                        style={{ animationDelay: `${idx * 60}ms` }}
+                      >
                         {imgs[0] ? (
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border border-line shrink-0"><img src={imgs[0]} alt="" className="w-full h-full object-cover" /></div>
+                          <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-xl overflow-hidden border border-line/50 shrink-0 shadow-sm">
+                            <img
+                              src={imgs[0]}
+                              alt=""
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
                         ) : (
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-surface-2 flex items-center justify-center shrink-0"><Package className="w-4 h-4 text-on-surface-3" /></div>
+                          <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-xl bg-gradient-to-br from-surface-2 to-surface-3 flex items-center justify-center shrink-0">
+                            <Package className="w-4 h-4 text-on-surface-3/50" />
+                          </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-[12px] sm:text-[13px] font-semibold text-on-surface truncate group-hover:text-primary transition-colors">{item.itemName}</p>
-                          <p className="text-[10px] sm:text-[11px] text-on-surface-3">{item.category} · {item.size}</p>
+                          <p className="text-[12px] sm:text-[13px] font-bold text-on-surface truncate group-hover:text-primary transition-colors">
+                            {item.itemName}
+                          </p>
+                          <p className="text-[10px] sm:text-[11px] text-on-surface-3 mt-0.5">
+                            {item.category} · {item.size}
+                          </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-[12px] sm:text-[13px] font-bold text-on-surface">{formatCurrency(price)}</p>
-                          <div className="scale-[0.85] origin-right"><StatusBadge status={item.status} /></div>
+                          <p className="text-[13px] sm:text-[14px] font-black text-on-surface">
+                            {formatCurrency(price)}
+                          </p>
+                          <div className="scale-[0.85] origin-right mt-0.5">
+                            <StatusBadge status={item.status} />
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        {/* ── TOP CATEGORIES ── */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardContent className="p-4 sm:p-5">
-              <h3 className="text-[14px] sm:text-[16px] font-bold text-on-surface mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-on-surface-3" /> Categories</h3>
+        {/* ── CATEGORIES ── */}
+        <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+          <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden h-full">
+            <div className="p-5 sm:p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <Layers className="w-[18px] h-[18px] text-white" />
+                </div>
+                <div>
+                  <h3 className="text-[15px] sm:text-[17px] font-black text-on-surface tracking-tight">
+                    Categories
+                  </h3>
+                  <p className="text-[10px] text-on-surface-3">Inventory breakdown</p>
+                </div>
+              </div>
               {topCategories.length === 0 ? (
-                <div className="text-center py-10 text-on-surface-3"><p className="text-[13px]">No data yet</p></div>
+                <div className="text-center py-14 text-on-surface-3">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-3xl bg-surface-2 flex items-center justify-center">
+                    <Layers className="w-7 h-7 text-on-surface-3/30" />
+                  </div>
+                  <p className="text-[14px] font-bold text-on-surface">No data yet</p>
+                </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-5">
                   {topCategories.map(([cat, count], i) => {
                     const pct = Math.round((count / totalItems) * 100);
-                    const colors = ["bg-primary", "bg-green", "bg-blue", "bg-orange", "bg-red"];
                     return (
-                      <div key={cat}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[12px] sm:text-[13px] font-medium text-on-surface">{cat}</span>
-                          <span className="text-[11px] text-on-surface-3">{count} items · {pct}%</span>
+                      <div key={cat} className="animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2.5 h-2.5 rounded-full ${catDotColors[i % catDotColors.length]}`} />
+                            <span className="text-[12px] sm:text-[13px] font-bold text-on-surface">{cat}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-on-surface-3 font-semibold">{count}</span>
+                            <span className="text-[10px] text-on-surface-3/60 font-medium">{pct}%</span>
+                          </div>
                         </div>
-                        <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${colors[i % colors.length]} transition-all duration-700`} style={{ width: pct + "%" }} />
+                        <div className="w-full rounded-full h-2 bg-surface-2 overflow-hidden">
+                          <div
+                            className={`h-2 rounded-full bg-gradient-to-r ${catBarColors[i % catBarColors.length]} transition-all duration-1000 ease-out`}
+                            style={{ width: `${pct}%` }}
+                          />
                         </div>
                       </div>
                     );
                   })}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

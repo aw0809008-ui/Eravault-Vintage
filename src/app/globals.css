@@ -3,24 +3,27 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   
-  --color-page: #f7f4f0;
+  /* ── LIGHT (warm luxury) ── */
+  --color-page: #f8f6f2;
   --color-surface: #ffffff;
-  --color-surface-2: #f2ede6;
-  --color-surface-3: #e4ddd3;
+  --color-surface-2: #f3efe9;
+  --color-surface-3: #e9e3d9;
   --color-field: #faf8f5;
-  --color-line: #e0d8cd;
-  --color-on-surface: #1c1814;
-  --color-on-surface-2: #6d5f4e;
-  --color-on-surface-3: #a09282;
+  --color-line: #e4ddd2;
+  --color-on-surface: #1a1612;
+  --color-on-surface-2: #6b5d4d;
+  --color-on-surface-3: #9e8e7c;
   --color-primary: #c2873b;
   --color-primary-hover: #ae7632;
   --color-primary-soft: rgba(194,135,59,0.08);
-  --color-green: #1a8a4a;
-  --color-red: #cc3d3d;
-  --color-orange: #c87f18;
-  --color-blue: #3b7ec4;
-  --color-sidebar-bg: #141110;
-  --color-sidebar-hover: #221d18;
+  --color-green: #16a34a;
+  --color-red: #dc2626;
+  --color-orange: #d97706;
+  --color-blue: #2563eb;
+  --color-violet: #7c3aed;
+  --color-cyan: #0891b2;
+  --color-sidebar-bg: #0c0a09;
+  --color-sidebar-hover: #1c1917;
   --color-sidebar-active: #c2873b;
 }
 
@@ -30,58 +33,90 @@
   body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background: var(--color-page);
     color: var(--color-on-surface);
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
   .dark {
-    --color-page: #08070b;
-    --color-surface: #0f0e14;
-    --color-surface-2: #17161e;
-    --color-surface-3: #201f28;
-    --color-field: #17161e;
-    --color-line: #222130;
-    --color-on-surface: #eae5dd;
-    --color-on-surface-2: #847562;
-    --color-on-surface-3: #4d4438;
+    --color-page: #09090b;
+    --color-surface: #111113;
+    --color-surface-2: #1a1a1e;
+    --color-surface-3: #232328;
+    --color-field: #151517;
+    --color-line: #27272a;
+    --color-on-surface: #f0ece6;
+    --color-on-surface-2: #8c7e6c;
+    --color-on-surface-3: #52493e;
     --color-primary: #daa54e;
     --color-primary-hover: #eab86a;
     --color-primary-soft: rgba(218,165,78,0.09);
-    --color-green: #2bc968;
-    --color-red: #e24d4d;
-    --color-orange: #dfa030;
-    --color-blue: #4d9ae8;
-    --color-sidebar-bg: #050407;
-    --color-sidebar-hover: #0f0e14;
+    --color-green: #22c55e;
+    --color-red: #ef4444;
+    --color-orange: #f59e0b;
+    --color-blue: #3b82f6;
+    --color-violet: #8b5cf6;
+    --color-cyan: #06b6d4;
+    --color-sidebar-bg: #050505;
+    --color-sidebar-hover: #111113;
     --color-sidebar-active: #daa54e;
   }
 
-  h1 { font-weight:750; letter-spacing:-0.025em; }
+  h1 { font-weight:800; letter-spacing:-0.035em; }
   h2 { font-weight:700; letter-spacing:-0.02em; }
   h3 { font-weight:650; letter-spacing:-0.015em; }
 }
 
-/* ── Animations ── */
+/* ── Keyframes ── */
 @keyframes fade-in {
-  from { opacity:0; transform:translateY(8px); }
+  from { opacity:0; transform:translateY(16px); }
   to { opacity:1; transform:translateY(0); }
+}
+@keyframes fade-in-up {
+  from { opacity:0; transform:translateY(24px) scale(0.96); }
+  to { opacity:1; transform:translateY(0) scale(1); }
 }
 @keyframes slide-in {
   from { transform:translateX(-100%); }
   to { transform:translateX(0); }
 }
-@keyframes glow {
-  0%,100% { opacity:.3; } 50% { opacity:.6; }
-}
 @keyframes shimmer {
   0% { background-position:-200% 0; }
   100% { background-position:200% 0; }
 }
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes counter-up {
+  from { opacity:0; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes glow-pulse {
+  0%,100% { opacity:0.4; }
+  50% { opacity:0.8; }
+}
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes border-glow {
+  0%,100% { border-color: rgba(194,135,59,0.15); }
+  50% { border-color: rgba(194,135,59,0.4); }
+}
 
-.animate-fade-in { animation: fade-in .3s ease-out both; }
-.animate-slide-in { animation: slide-in .25s ease-out both; }
-.animate-glow { animation: glow 3s ease-in-out infinite; }
+.animate-fade-in { animation: fade-in .5s cubic-bezier(.16,1,.3,1) both; }
+.animate-fade-in-up { animation: fade-in-up .6s cubic-bezier(.16,1,.3,1) both; }
+.animate-slide-in { animation: slide-in .3s cubic-bezier(.16,1,.3,1) both; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-counter-up { animation: counter-up .5s cubic-bezier(.16,1,.3,1) both; }
+.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-gradient-move { 
+  background-size: 200% 200%;
+  animation: gradient-move 6s ease infinite; 
+}
 .animate-shimmer {
   background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-surface-3) 50%, var(--color-surface-2) 75%);
   background-size: 200% 100%;
@@ -93,12 +128,12 @@
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-line); border-radius:10px; }
 
-/* ── Calendar inputs ── */
+/* Calendar inputs */
 input[type="date"], input[type="time"], input[type="datetime-local"] { color-scheme: light; }
 .dark input[type="date"], .dark input[type="time"], .dark input[type="datetime-local"] { color-scheme: dark; }
 
-/* ── Selection ── */
+/* Selection */
 ::selection { background:var(--color-primary); color:#fff; }
 
-/* ── Smooth scroll ── */
+/* Smooth scroll */
 html { scroll-behavior: smooth; }
