@@ -26,13 +26,13 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
   return (
     <div className="min-h-screen flex bg-page">
       {open && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 lg:hidden" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setOpen(false)} />
       )}
 
       {/* ─────── SIDEBAR ─────── */}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)]",
+          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col transition-colors duration-200 ease-[cubic-bezier(.16,1,.3,1)]",
           col ? "lg:w-[80px]" : "lg:w-[270px]",
           open ? "w-[280px] translate-x-0 animate-slide-in" : "-translate-x-full lg:translate-x-0"
         )}
@@ -46,7 +46,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
         <div className="flex items-center justify-between px-5 h-[76px] shrink-0">
           <Link href="/dashboard" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-xl shadow-[#c49a62]/30 group-hover:shadow-[#c49a62]/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-lg shadow-[#c49a62]/20 group- transition-colors duration-200  ">
                 <span className="text-white font-serif font-black text-lg drop-shadow-sm">E</span>
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-[2.5px] border-[#0a0a0b] shadow-sm shadow-emerald-400/50" />
@@ -74,7 +74,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
               return (
                 <Link key={n.href} href={n.href} onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-3 rounded-2xl text-[13px] font-semibold transition-all duration-300 group relative overflow-hidden",
+                    "flex items-center gap-3 px-3 py-3 rounded-2xl text-[13px] font-semibold transition-colors duration-200 group relative overflow-hidden",
                     active ? "text-white" : "text-white/30 hover:text-white/70 hover:bg-white/[0.03]"
                   )}
                   style={{ animationDelay: `${i * 40}ms` }}
@@ -85,7 +85,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
                       style={{ boxShadow: "0 0 14px rgba(196,154,98,0.6)" }} />
                   )}
                   <div className={cn(
-                    "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 relative",
+                    "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-200 relative",
                     active ? `bg-gradient-to-br ${n.accent} shadow-lg` : "bg-white/[0.04] group-hover:bg-white/[0.08]"
                   )}>
                     <n.icon className={cn("w-[17px] h-[17px] relative z-10", active ? "text-white drop-shadow-sm" : "text-white/30 group-hover:text-white/60")} />
@@ -102,13 +102,13 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
         <div className="px-3 pb-3 space-y-1 shrink-0">
           <div className="mx-3 my-3 h-px bg-gradient-to-r from-transparent via-[#c49a62]/10 to-transparent" />
           <button onClick={toggleTheme} className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-semibold w-full text-white/25 hover:text-white/60 hover:bg-white/[0.04] transition-all cursor-pointer group">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] group-hover:bg-white/[0.08] flex items-center justify-center transition-all duration-300">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.04] group-hover:bg-white/[0.08] flex items-center justify-center transition-colors duration-200">
               {theme === "dark" ? <Sun className="w-[17px] h-[17px] text-[#c49a62]/60 group-hover:text-[#d1b385] transition-colors" /> : <Moon className="w-[17px] h-[17px] text-blue/40 group-hover:text-blue transition-colors" />}
             </div>
             {!col && (theme === "dark" ? "Light Mode" : "Dark Mode")}
           </button>
           <button onClick={logout} className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-semibold w-full text-white/15 hover:text-red-400 hover:bg-red-500/[0.06] transition-all cursor-pointer group">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] group-hover:bg-red-500/10 flex items-center justify-center transition-all duration-300">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.04] group-hover:bg-red-500/10 flex items-center justify-center transition-colors duration-200">
               <LogOut className="w-[17px] h-[17px] text-white/15 group-hover:text-red-400 transition-colors" />
             </div>
             {!col && "Sign Out"}
@@ -136,7 +136,7 @@ export function DashboardShell({ children, user }: { children: React.ReactNode; 
 
       {/* ─────── MAIN ─────── */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden bg-surface/80 backdrop-blur-xl border-b border-line/50 px-4 h-[60px] flex items-center justify-between sticky top-0 z-30" style={{ boxShadow: "0 1px 12px -4px rgba(0,0,0,0.08)" }}>
+        <header className="lg:hidden bg-surface border-b border-line/50 px-4 h-[60px] flex items-center justify-between sticky top-0 z-30" style={{ boxShadow: "0 1px 12px -4px rgba(0,0,0,0.08)" }}>
           <button onClick={() => setOpen(true)} className="text-on-surface-2 cursor-pointer p-2 hover:bg-surface-2 rounded-xl transition-colors active:scale-95"><Menu className="w-5 h-5" /></button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-md shadow-[#c49a62]/20">

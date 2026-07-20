@@ -110,7 +110,7 @@ export default function ChatPage() {
   return (
     <div className="flex h-[calc(100vh-60px)] lg:h-[calc(100vh-32px)] rounded-2xl overflow-hidden border border-line/60 shadow-sm animate-fade-in">
       {/* ─── Chat List Sidebar ─── */}
-      <div className={`${pick ? "hidden md:flex" : "flex"} flex-col w-full md:w-[320px] lg:w-[340px] border-r border-line/60 shrink-0 bg-surface/95 backdrop-blur-sm`}>
+      <div className={`${pick ? "hidden md:flex" : "flex"} flex-col w-full md:w-[320px] lg:w-[340px] border-r border-line/60 shrink-0 bg-surface `}>
         {/* Header */}
         <div className="px-5 py-4 flex items-center gap-3 shrink-0 border-b border-line/40">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#6f4930] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
@@ -170,7 +170,7 @@ export default function ChatPage() {
       {pick ? (
         <div className="flex-1 flex flex-col min-w-0 bg-page">
           {/* Chat Header */}
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-line/40 bg-surface/80 backdrop-blur-xl shrink-0">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-line/40 bg-surface shrink-0">
             <button onClick={() => setPick(null)} className="md:hidden w-9 h-9 rounded-xl bg-surface-2 hover:bg-surface-3 flex items-center justify-center cursor-pointer transition-all active:scale-95">
               <svg className="w-5 h-5 text-on-surface-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
@@ -196,7 +196,7 @@ export default function ChatPage() {
             {msgs.map((m, i) => {
               const mine = m.sender === "admin";
               return (
-                <div key={m.id ?? i} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-in`} style={{ animationDelay: `${Math.min(i * 15, 200)}ms` }}>
+                <div key={m.id ?? i} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-in`} >
                   <div className={`max-w-[80%] sm:max-w-[65%] px-4 py-3 text-[13px] leading-relaxed ${mine
                     ? "bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] text-white rounded-2xl rounded-br-sm shadow-lg shadow-[#c49a62]/15"
                     : "bg-surface text-on-surface border border-line/50 rounded-2xl rounded-bl-sm shadow-sm"}`}>
@@ -212,14 +212,14 @@ export default function ChatPage() {
           </div>
 
           {/* Input Bar */}
-          <div className="px-4 sm:px-6 py-4 border-t border-line/40 bg-surface/90 backdrop-blur-sm shrink-0">
+          <div className="px-4 sm:px-6 py-4 border-t border-line/40 bg-surface  shrink-0">
             <div className="flex gap-3">
               <input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Type a reply…"
                 className="flex-1 min-w-0 px-4 py-3 rounded-xl bg-surface-2/60 border border-line/40 text-[13px] text-on-surface placeholder-on-surface-3 outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all" />
               <button onClick={send} disabled={!text.trim() || busy}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#d1b385] via-[#c49a62] to-[#885935] text-white text-[13px] font-black disabled:opacity-30 hover:shadow-xl hover:shadow-[#c49a62]/25 transition-all shrink-0 flex items-center gap-2 cursor-pointer active:scale-[0.97]">
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#d1b385] via-[#c49a62] to-[#885935] text-white text-[13px] font-black disabled:opacity-30 transition-colors shrink-0 flex items-center gap-2 cursor-pointer active:scale-[0.97]">
                 {busy ? <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                   : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" /></svg>}
                 Send

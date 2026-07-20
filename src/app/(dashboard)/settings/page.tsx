@@ -54,7 +54,7 @@ export default function SettingsPage() {
     <div className="space-y-6 sm:space-y-8 max-w-2xl">
       {/* ═══════ HEADER ═══════ */}
       <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8 animate-fade-in" style={{ background: "linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%)" }}>
-        <div className="absolute top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-full bg-gradient-to-br from-amber-500/15 to-transparent blur-2xl" />
+        <div className="absolute top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-full bg-gradient-to-br from-amber-500/15 to-transparent blur-xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-2xl">⚙️</span>
@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
       {/* ═══════ ADMIN PANEL ═══════ */}
       {admin && (
-        <div className="rounded-2xl border border-violet-500/20 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+        <div className="rounded-2xl border border-violet-500/20 bg-surface  overflow-hidden animate-fade-in-up" >
           <div className="p-5 sm:p-6">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -121,7 +121,7 @@ export default function SettingsPage() {
       )}
 
       {/* ═══════ PROFILE ═══════ */}
-      <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "150ms" }}>
+      <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
@@ -156,7 +156,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ═══════ INSTALL APP ═══════ */}
-      <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+      <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -181,7 +181,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ═══════ DATA MANAGEMENT ═══════ */}
-      <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "250ms" }}>
+      <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">

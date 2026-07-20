@@ -46,8 +46,8 @@ export default function AnalyticsPage() {
     <div className="space-y-6 sm:space-y-8">
       {/* ═══════ HEADER ═══════ */}
       <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8 animate-fade-in" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)" }}>
-        <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full bg-gradient-to-br from-blue-400/15 to-indigo-500/5 blur-2xl" />
-        <div className="absolute bottom-[-30px] left-[30%] w-[150px] h-[150px] rounded-full bg-gradient-to-br from-violet-400/10 to-transparent blur-2xl" />
+        <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full bg-gradient-to-br from-blue-400/15 to-indigo-500/5 blur-xl" />
+        <div className="absolute bottom-[-30px] left-[30%] w-[150px] h-[150px] rounded-full bg-gradient-to-br from-violet-400/10 to-transparent blur-xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-blue-400/90 text-2xl">📊</span>
@@ -68,13 +68,13 @@ export default function AnalyticsPage() {
           { l: "Avg Profit/Item", v: formatCurrency(avgProfit), i: avgProfit >= 0 ? Flame : TrendingDown, gradient: avgProfit >= 0 ? "from-green-400 via-emerald-500 to-teal-600" : "from-red-400 via-rose-500 to-red-600", shadow: avgProfit >= 0 ? "shadow-emerald-500/20" : "shadow-red-500/20" },
           { l: "Profit Margin", v: `${margin}%`, i: Percent, gradient: "from-violet-400 via-purple-500 to-indigo-600", shadow: "shadow-purple-500/20" },
         ].map((m, idx) => (
-          <div key={m.l} className="relative rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden group hover:border-line transition-all duration-300 hover:-translate-y-1 hover:shadow-xl animate-fade-in-up" style={{ animationDelay: `${idx * 80}ms` }}>
+          <div key={m.l} className="relative rounded-2xl border border-line/60 bg-surface  overflow-hidden group hover:border-line transition-colors duration-200 animate-fade-in-up" >
             <div className="p-4 sm:p-5 relative z-10">
               {loading ? (
                 <div className="space-y-3"><Skeleton className="h-10 w-10 rounded-xl" /><Skeleton className="h-7 w-24" /><Skeleton className="h-3 w-16" /></div>
               ) : (
                 <>
-                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${m.gradient} flex items-center justify-center mb-3 shadow-lg ${m.shadow} group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${m.gradient} flex items-center justify-center mb-3 shadow-lg ${m.shadow} transition-colors duration-200`}>
                     <m.i className="w-5 h-5 text-white drop-shadow-sm" />
                   </div>
                   <p className="text-[22px] sm:text-[26px] font-black text-on-surface tracking-tight leading-none animate-counter-up">{m.v}</p>
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
       {!loading && bestItem && (
         <div className="relative rounded-2xl border border-amber-500/20 overflow-hidden animate-fade-in-up" style={{ animationDelay: "250ms", background: "linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(217,119,6,0.02) 100%)" }}>
           <div className="p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative z-10">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shrink-0 shadow-xl shadow-[#c49a62]/25 animate-float">
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shrink-0 shadow-lg shadow-[#c49a62]/25 ">
               <Trophy className="w-8 h-8 text-white drop-shadow-sm" />
             </div>
             <div className="flex-1 min-w-0">
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
 
       {/* ═══════ CHARTS ═══════ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-        <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+        <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#d1b385] via-[#c49a62] to-[#885935] flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
           <div className="p-5 sm:p-6 pt-2">{loading ? <Skeleton className="h-52 w-full rounded-xl" /> : <SalesChart data={monthly} />}</div>
         </div>
 
-        <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "350ms" }}>
+        <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
       {/* ═══════ CONDITION + CATEGORY PERF ═══════ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         {/* Condition Grade */}
-        <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+        <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Category Performance */}
-        <div className="rounded-2xl border border-line/60 bg-surface/80 backdrop-blur-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: "450ms" }}>
+        <div className="rounded-2xl border border-line/60 bg-surface  overflow-hidden animate-fade-in-up" >
           <div className="p-5 sm:p-6 pb-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-[#c49a62]/20">
@@ -204,7 +204,7 @@ export default function AnalyticsPage() {
             ) : (
               <div className="space-y-2.5">{Object.entries(catProfits).sort((a, b) => (b[1].revenue - b[1].cost) - (a[1].revenue - a[1].cost)).map(([cat, d]) => {
                 const p = d.revenue - d.cost; const roi = d.cost > 0 ? Math.round((p / d.cost) * 100) : 0;
-                return <div key={cat} className="flex items-center justify-between p-4 rounded-xl bg-surface-2/60 hover:bg-surface-2 transition-all duration-200 border border-line/30 hover:border-line/60">
+                return <div key={cat} className="flex items-center justify-between p-4 rounded-xl bg-surface-2/60 hover:bg-surface-2 transition-colors duration-200 border border-line/30 hover:border-line/60">
                   <div><p className="text-[13px] font-bold text-on-surface">{cat}</p><p className="text-[11px] text-on-surface-3 mt-0.5">{d.count} sold · {formatCurrency(d.revenue)} rev</p></div>
                   <div className="text-right"><p className={`text-[16px] font-black ${p >= 0 ? "text-green" : "text-red"}`}>{p >= 0 ? "+" : ""}{formatCurrency(p)}</p><p className={`text-[11px] font-bold ${roi >= 0 ? "text-green" : "text-red"}`}>{roi}% ROI</p></div>
                 </div>;
